@@ -73,7 +73,7 @@ def marque(lien=True):
 
 
 def fil(*etapes):
-    sep = ' ‹ ' if L == 'ar' else ' › '
+    sep = '<span class="fil-sep" aria-hidden="true"></span>'
     return f'<p class="fil">{sep.join(etapes)}</p>'
 
 
@@ -351,7 +351,7 @@ def accueil():
         <div class="seuil-actions"><a class="btn btn-or" href="composer.html">{t('Composer mon livret', 'صمّم كتيّبي')}</a><a href="mailto:{MARQUE["email"]}">{t('ou écrivez-nous', 'أو راسلونا')}</a></div>
       </div>
     </section>'''
-    page('index.html', t(f'{MARQUE["nom"]} — livrets et papeterie pour les cérémonies musulmanes', 'سكينة — كتيّبات وأوراق للمناسبات الإسلامية'),
+    page('index.html', t(f'{MARQUE["nom"]} · livrets et papeterie des cérémonies musulmanes', 'سكينة · كتيّبات وأوراق المناسبات الإسلامية'),
          t("Livrets de cérémonie et papeterie pour le nikâh, l'aqîqa, le hajj, l'Aïd et la janâza, en français et en arabe, dans le respect du sacré.",
            'كتيّبات وأوراق لعقد النكاح والعقيقة والحج والعيد والجنازة، بالعربية والفرنسية، في احترامٍ للمقدّس.'),
          corps, 'index.html')
@@ -370,7 +370,7 @@ def ceremonies():
         {fil_vie()}
       </div>
     </section>'''
-    page('ceremonies.html', t(f"Le fil d'une vie — {MARQUE['nom']}", 'مسيرة العمر — سكينة'),
+    page('ceremonies.html', t(f"{MARQUE['nom']} · Le fil d'une vie", 'سكينة · مسيرة العمر'),
          t('Aqîqa, khitân, khatm, henné, nikâh, hajj, janâza, Ramadan et Aïd : un livret pour chaque cérémonie.',
            'العقيقة، الختان، ختم القرآن، الحنّاء، النكاح، الحج، الجنازة، رمضان والعيد: كتيّب لكل مناسبة.'),
          corps, 'ceremonies.html')
@@ -419,7 +419,7 @@ def page_ceremonie(c):
         <nav class="voisins" aria-label="{t('Cérémonies voisines', 'مناسبات قريبة')}">{voisins}</nav>
       </div>
     </section>'''
-    page(f'ceremonie-{c["id"]}.html', t(f'{c["nom"]} — livret et papeterie | {MARQUE["nom"]}', f'{nom} — كتيّب وأوراق | سكينة'),
+    page(f'ceremonie-{c["id"]}.html', t(f'{MARQUE["nom"]} · {c["nom"]}', f'سكينة · {nom}'),
          cv(c, 'court'), corps, 'ceremonies.html')
 
 
@@ -437,7 +437,7 @@ def motifs():
         <div class="grille-motifs">{cartes}</div>
       </div>
     </section>'''
-    page('motifs.html', t(f'Les motifs — {MARQUE["nom"]}', 'الزخارف — سكينة'),
+    page('motifs.html', t(f'{MARQUE["nom"]} · Les motifs', 'سكينة · الزخارف'),
          t("Huit motifs inspirés des arts de l'islam : Alhambra, Iznik, Médine, Andalousie…", 'ثماني زخارف مستوحاة من الفنون الإسلامية: الحمراء، إزنيق، المدينة، الأندلس…'),
          corps, 'motifs.html')
 
@@ -474,7 +474,7 @@ def respect():
         <div class="encadre encadre-note" style="--accent:#4A5563"><h3>{t('Les funérailles', 'الجنائز')}</h3><p style="margin:0;color:var(--encre-douce)">{t("Les documents de janâza sont sobres, sans dorure, et traités en priorité. Nous ne relançons jamais une famille endeuillée et ne lui demandons pas d'avis.", 'أوراق الجنازة رصينة، بلا تذهيب، وتُعالَج بأولوية. لا نلاحق عائلةً مكلومة أبدًا، ولا نطلب منها تقييمًا.')}</p></div>
       </div>
     </section>'''
-    page('respect.html', t(f'Notre éthique — {MARQUE["nom"]}', 'ميثاقنا — سكينة'),
+    page('respect.html', t(f'{MARQUE["nom"]} · Notre éthique', 'سكينة · ميثاقنا'),
          t('Versets vérifiés, mention de respect, modèles sans figures : notre charte.', 'آيات موثّقة، وتنبيهٌ بالاحترام، ونماذج بلا صور: ميثاقنا.'),
          corps, 'respect.html')
 
@@ -544,7 +544,7 @@ def composer():
           f'''<label class="case"><input type="checkbox" name="basmala"> {t('Ouvrir par la basmala', 'الافتتاح بالبسملة')} <span lang="ar">(بسم الله الرحمن الرحيم)</span></label>
             <div class="bloc-langue" data-pour="fr"><label class="champ"><span>{t("Mot d'accueil", 'كلمة الترحيب')} · FR</span><textarea name="accueil_fr" rows="3" lang="fr" dir="ltr"></textarea></label></div>
             <div class="bloc-langue" data-pour="ar"><label class="champ"><span>{t("Mot d'accueil", 'كلمة الترحيب')} · <span lang="ar">عربي</span></span><textarea name="accueil_ar" rows="3" lang="ar" dir="rtl"></textarea></label></div>
-            <label class="case"><input type="checkbox" name="avec_deroule"> {t('Expliquer le déroulé de la cérémonie', 'شرح مراحل المناسبة')}</label>
+            <label class="case"><input type="checkbox" name="avec_deroule"> {t('Expliquer le fil de la cérémonie', 'شرح سير المناسبة')}</label>
             <div id="f-deroule" class="etapes-edition"></div>
             <button type="button" class="btn-petit" id="ajout-etape">+ {t('Ajouter un moment', 'إضافة لحظة')}</button>'''),
         q(5, t('Quels versets et invocations ?', 'أيّ آيات وأدعية؟'), t('Chacun est cité avec sa référence. Faites-les relire par votre imam.', 'كلٌّ منها بمرجعه. اعرضوها على إمامكم.'),
@@ -592,7 +592,7 @@ def composer():
     </section>'''
     scripts = (f'<script src="{r}assets/js/donnees.js?v={version("site/assets/js/donnees.js")}"></script>\n'
                f'<script src="{r}assets/js/composer.js?v={version("assets/js/composer.js")}"></script>')
-    page('composer.html', t(f'Composer un livret — {MARQUE["nom"]}', 'تصميم كتيّب — سكينة'),
+    page('composer.html', t(f'{MARQUE["nom"]} · Composer un livret', 'سكينة · تصميم كتيّب'),
          t('Composez en ligne votre livret de cérémonie : nikâh, aqîqa, hajj, Aïd, janâza… En français, en arabe ou les deux, avec versets et invocations référencés.',
            'صمّم كتيّب مناسبتك عبر الإنترنت: النكاح، العقيقة، الحج، العيد، الجنازة… بالعربية أو بالفرنسية أو بهما معًا، مع آيات وأدعية موثّقة.'),
          corps, 'composer.html', scripts)
@@ -714,7 +714,7 @@ def charte():
         </div>
       </div>
     </section>'''
-    page('charte-graphique.html', f'Charte graphique — {MARQUE["nom"]}', "Signe, couleurs, typographies et motifs de l'identité Sakîna.", corps)
+    page('charte-graphique.html', f'{MARQUE["nom"]} · Charte graphique', "Signe, couleurs, typographies et motifs de l'identité Sakîna.", corps)
 
 
 def favicon():

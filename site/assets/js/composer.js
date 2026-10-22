@@ -36,10 +36,10 @@
 
   // Titres des sections du livret, dans la langue du livret.
   const T = {
-    accueil: ['Bienvenue', 'أهلًا وسهلًا'],
-    deroule: ['Le déroulé', 'مراحل الحفل'],
+    accueil: ['As-salâmu ‘alaykum', 'السلام عليكم'],
+    deroule: ['Le fil de la cérémonie', 'سير الحفل'],
     textes: ['Versets et invocations', 'آيات وأدعية'],
-    fin: ['Avec gratitude', 'مع الشكر'],
+    fin: ['Jazâkumu-llâhu khayran', 'جزاكم الله خيرًا'],
     mention: ['Ce livret contient des versets du Coran et le nom de Dieu : merci de le conserver, ou de le confier à un recyclage respectueux.',
               'يتضمّن هذا الكتيّب آياتٍ من القرآن الكريم واسمَ الله: يُرجى حفظه أو التخلّص منه بطريقة لائقة.'],
   };

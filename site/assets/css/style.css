@@ -52,7 +52,7 @@ body {
   -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
 }
 img, svg { display: block; max-width: 100%; }
-a { color: var(--or-fonce); text-underline-offset: 3px; }
+a { color: var(--or-fonce); text-decoration-color: color-mix(in srgb, var(--turquoise) 70%, transparent); text-decoration-thickness: .09em; text-underline-offset: .28em; }
 a:hover { color: var(--emeraude); }
 h1, h2, h3 { font-family: var(--f-titre); font-weight: 400; line-height: 1.15; color: var(--nuit); margin: 0 0 .5em; text-wrap: balance; }
 h1 { font-size: var(--corps-2xl); letter-spacing: -.01em; }
@@ -79,7 +79,7 @@ body [lang="ar"], .ar { font-family: var(--f-arabe); direction: rtl; unicode-bid
 /* --- Boutons --- */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-  min-height: 48px; padding: 0 26px; border-radius: 999px; border: 1.5px solid transparent;
+  min-height: 48px; padding: 0 26px; border-radius: 24px 24px 7px 7px;   /* un petit arc, comme le mihrab */ border: 1.5px solid transparent;
   font: 600 var(--corps-sm)/1 var(--f-texte); text-decoration: none; cursor: pointer;
   transition: background .2s, color .2s, border-color .2s, transform .2s;
 }
@@ -102,7 +102,7 @@ body [lang="ar"], .ar { font-family: var(--f-arabe); direction: rtl; unicode-bid
 .marque-latin { font-family: var(--f-titre); font-size: 1.05rem; color: var(--encre-douce); }
 .nav { display: flex; align-items: center; gap: 26px; margin-inline-start: auto; }
 .entete-droite { order: 3; display: flex; align-items: center; gap: 6px; }
-.bascule-langue { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border: 1px solid var(--filet); border-radius: 999px; color: var(--nuit); text-decoration: none; font-weight: 600; font-size: var(--corps-sm); }
+.bascule-langue { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border: 1px solid var(--filet); border-radius: 18px 18px 6px 6px; color: var(--nuit); text-decoration: none; font-weight: 600; font-size: var(--corps-sm); }
 .bascule-langue:hover { border-color: var(--turquoise); color: var(--emeraude); }
 .bascule-langue[lang="ar"] { font-family: var(--f-texte-ar); font-size: 1rem; }
 .nav a { color: var(--encre); text-decoration: none; font-size: var(--corps-sm); font-weight: 600; }
@@ -145,8 +145,11 @@ body [lang="ar"], .ar { font-family: var(--f-arabe); direction: rtl; unicode-bid
 @media (max-width: 900px) { .engagement { grid-template-columns: 1fr; } }
 
 /* --- Page cérémonie --- */
-.fil { font-size: var(--corps-sm); color: var(--encre-douce); margin: 0 0 20px; }
-.fil a { color: var(--encre-douce); }
+.fil { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: var(--corps-sm); color: var(--encre-douce); margin: 0 0 20px; }
+.fil a { color: var(--encre-douce); text-decoration: none; }
+.fil a:hover { color: var(--emeraude); }
+.fil-sep { width: 7px; height: 7px; background: var(--turquoise); opacity: .7;
+  clip-path: polygon(50% 0, 63% 25%, 85% 15%, 75% 37%, 100% 50%, 75% 63%, 85% 85%, 63% 75%, 50% 100%, 37% 75%, 15% 85%, 25% 63%, 0 50%, 25% 37%, 15% 15%, 37% 25%); }
 .colonnes { display: grid; grid-template-columns: 1.15fr .85fr; gap: clamp(28px, 5vw, 64px); margin-top: 44px; }
 @media (max-width: 900px) { .colonnes { grid-template-columns: 1fr; } }
 .deroule { list-style: none; margin: 0; padding: 0; position: relative; }
