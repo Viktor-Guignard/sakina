@@ -107,6 +107,9 @@ body [lang="ar"], .ar { font-family: var(--f-arabe); direction: rtl; unicode-bid
 .nav a:hover, .nav a[aria-current="page"] { color: var(--emeraude); }
 .nav .btn, .nav .btn[aria-current] { color: #FFF; }
 .nav-bouton { display: none; background: none; border: 0; padding: 10px; cursor: pointer; color: var(--nuit); }
+.nav-bouton svg { width: 24px; height: 24px; max-width: none; }
+.entete-droite, .nav-bouton { flex: none; }
+.marque { min-width: 0; }
 @media (max-width: 900px) {
   .nav-bouton { display: block; }
   .nav { position: absolute; inset: 76px 0 auto; flex-direction: column; align-items: stretch; gap: 0; padding: 8px 16px 20px; background: var(--sable); border-bottom: 1px solid var(--filet); display: none; }

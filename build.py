@@ -8,6 +8,7 @@ Pages : accueil, fil d'une vie (+ une page par cérémonie), motifs, notre
 éthique, compositeur de livrets ; la charte graphique n'existe qu'en français.
 Le contenu est dans contenu.py, contenu_ar.py et livrets.py.
 """
+import hashlib
 import json
 import shutil
 from html import escape
@@ -20,6 +21,11 @@ from livrets import TEXTES, LIVRETS, TARIFS_VISTAPRINT, MARGE, TVA
 
 RACINE = Path(__file__).parent
 SITE = RACINE / 'site'
+
+def version(chemin):
+    """Empreinte courte d'un fichier : change à chaque modification, pour contourner le cache des navigateurs."""
+    return hashlib.sha256((RACINE / chemin).read_bytes()).hexdigest()[:10]
+
 
 POLICES = ('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans+Arabic:wght@400;500;600'
            '&family=Manrope:wght@400;500;600;700&family=Marcellus&family=Reem+Kufi:wght@400;600&display=swap')
@@ -143,20 +149,20 @@ def page(fichier, titre, description, corps, actif='', scripts=''):
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="{POLICES}">
-  <link rel="stylesheet" href="{r}assets/css/style.css">
+  <link rel="stylesheet" href="{r}assets/css/style.css?v={version('assets/css/style.css')}">
 </head>
 <body>
-  <a class="visuellement-cache" href="#contenu">{t('Aller au contenu', 'انتقل إلى المحتوى')}</a>
+  <a class="visuellement-cache" href="#contenu">{t('Passer directement au texte', 'الانتقال مباشرةً إلى النص')}</a>
   <header class="entete">
     <div class="conteneur entete-int">
       {marque()}
       <div class="entete-droite">
         {bascule}
         <button class="nav-bouton" type="button" aria-expanded="false" aria-controls="nav" aria-label="{t('Menu', 'القائمة')}">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8.5h16M8 15.5h12"/><circle cx="4.6" cy="15.5" r="1.2" fill="currentColor" stroke="none"/></svg>
         </button>
       </div>
-      <nav class="nav" id="nav" aria-label="{t('Navigation principale', 'التنقل الرئيسي')}">{liens}<a class="btn btn-or" href="composer.html"{courant if actif == 'composer.html' else ''}>{t('Composer', 'صمّم')}</a></nav>
+      <nav class="nav" id="nav" aria-label="{t('Rubriques du site', 'أقسام الموقع')}">{liens}<a class="btn btn-or" href="composer.html"{courant if actif == 'composer.html' else ''}>{t('Composer', 'صمّم')}</a></nav>
     </div>
   </header>
   <main id="contenu">
@@ -507,7 +513,7 @@ def composer():
     questions = ''.join([
         q(0, t('Pour quelle occasion ?', 'لأيّ مناسبة؟'), t("Le déroulé, les versets et les mots d'accueil se préparent selon votre choix.", 'تُعَدّ المراحل والآيات وكلمات الترحيب بحسب اختياركم.'),
           '<div class="choix-occasions" id="f-ceremonie" role="radiogroup"></div>'),
-        q(1, t('Quel motif vous ressemble ?', 'أيّ زخرفة تشبهكم؟'), t('Les motifs conseillés pour votre cérémonie viennent en premier.', 'الزخارف المقترحة لمناسبتكم تأتي أولًا.'),
+        q(1, t('Sous quel motif ?', 'بأيّ زخرفة؟'), t('Les motifs conseillés pour votre cérémonie viennent en premier.', 'الزخارف المقترحة لمناسبتكم تأتي أولًا.'),
           '<div class="choix-motifs" id="f-motifs" role="radiogroup"></div>'),
         q(2, t('En quelle langue ?', 'بأيّ لغة؟'), t("Les versets figurent toujours en arabe ; la traduction s'ajoute en français.", 'تبقى الآيات دائمًا بالعربية؛ وتُضاف الترجمة بالفرنسية.'),
           f'''<div class="choix-langues" role="radiogroup">
@@ -582,7 +588,8 @@ def composer():
         </div>
       </div>
     </section>'''
-    scripts = f'<script src="{r}assets/js/donnees.js"></script>\n<script src="{r}assets/js/composer.js"></script>'
+    scripts = (f'<script src="{r}assets/js/donnees.js?v={version("site/assets/js/donnees.js")}"></script>\n'
+               f'<script src="{r}assets/js/composer.js?v={version("assets/js/composer.js")}"></script>')
     page('composer.html', t(f'Composer un livret — {MARQUE["nom"]}', 'تصميم كتيّب — سكينة'),
          t('Composez en ligne votre livret de cérémonie : nikâh, aqîqa, hajj, Aïd, janâza… En français, en arabe ou les deux, avec versets et invocations référencés.',
            'صمّم كتيّب مناسبتك عبر الإنترنت: النكاح، العقيقة، الحج، العيد، الجنازة… بالعربية أو بالفرنسية أو بهما معًا، مع آيات وأدعية موثّقة.'),
