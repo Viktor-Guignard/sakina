@@ -58,18 +58,27 @@ def motif(m, c):
 
 
 def couverture(cle, c):
+    """Couverture A5 : le décor s'inscrit dans un arc brisé (mihrab), signe de Sakîna.
+
+    Les textes portent une classe (c-phrase, c-titre, c-noms, c-date) que le
+    compositeur ajuste quand ils sont en arabe.
+    """
     m = c['motif']
+    sobre = m == 'sobre'
     sombre = c['fond'].lower() in ('#11706b', '#0f2747')
     taille_ar = c.get('taille_ar') or (11 if len(c['phrase']) > 14 else 15)
-    date = c.get('date', 'SAMEDI 14 JUIN 2027')
-    return f'''<svg viewBox="0 0 148 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Modèle {escape(c['nom'])}">
+    date = c.get('date', 'Samedi 14 juin 2027')
+    y = (104, 126, 145, 156, 167) if sobre else (124, 143, 162, 172, 184)   # phrase, titre, noms, étoile, date
+    arc = arc_brise(14, 14, 120, 184)
+    return f'''<svg viewBox="0 0 148 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Motif {escape(c['nom'])}">
+  <defs><clipPath id="arc-{cle}"><path d="{arc}Z"/></clipPath></defs>
   <rect width="148" height="210" fill="{c['fond']}"/>
-  <rect x="7" y="7" width="134" height="196" fill="none" stroke="{c['trait']}" stroke-width=".7"/>
-  <rect x="10" y="10" width="128" height="190" fill="none" stroke="{c['trait']}" stroke-width=".3"/>
-  {motif(m, c)}
-  <text x="74" y="{122 if m != 'sobre' else 104}" text-anchor="middle" direction="rtl" font-family="Amiri, 'Noto Naskh Arabic', serif" font-size="{taille_ar}" fill="{c['accent']}">{escape(c['phrase'])}</text>
-  <text x="74" y="{144 if m != 'sobre' else 128}" text-anchor="middle" font-family="Manrope, sans-serif" font-size="5.2" font-weight="700" letter-spacing="1.6" fill="{c['accent'] if not sombre else c['trait']}">{escape(c['titre'].upper())}</text>
-  <text x="74" y="{163 if m != 'sobre' else 146}" text-anchor="middle" font-family="Marcellus, serif" font-size="12" fill="{c['texte']}">{escape(c['noms'])}</text>
-  <path d="M62 178h24" stroke="{c['trait']}" stroke-width=".5"/>
-  <text x="74" y="188" text-anchor="middle" font-family="Manrope, sans-serif" font-size="4" letter-spacing=".8" fill="{c['texte']}" opacity=".7">{escape(date)}</text>
+  <path d="{arc}" fill="none" stroke="{c['trait']}" stroke-width=".8"/>
+  <path d="{arc_brise(18.5, 20, 111, 178)}" fill="none" stroke="{c['trait']}" stroke-width=".25" opacity=".7"/>
+  <g clip-path="url(#arc-{cle})">{motif(m, c)}</g>
+  <text class="c-phrase" x="74" y="{y[0]}" text-anchor="middle" direction="rtl" font-family="Amiri, 'Noto Naskh Arabic', serif" font-size="{taille_ar}" fill="{c['accent']}">{escape(c['phrase'])}</text>
+  <text class="c-titre" x="74" y="{y[1]}" text-anchor="middle" font-family="Manrope, sans-serif" font-size="6.2" font-weight="600" fill="{c['accent'] if not sombre else c['trait']}">{escape(c['titre'])}</text>
+  <text class="c-noms" x="74" y="{y[2]}" text-anchor="middle" font-family="Marcellus, serif" font-size="12" fill="{c['texte']}">{escape(c['noms'])}</text>
+  <polygon points="{etoile(74, y[3], 2.6)}" fill="{c['trait']}"/>
+  <text class="c-date" x="74" y="{y[4]}" text-anchor="middle" font-family="Manrope, sans-serif" font-size="4.6" fill="{c['texte']}" opacity=".75">{escape(date)}</text>
 </svg>'''

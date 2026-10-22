@@ -63,8 +63,12 @@ def logo(classe='marque-signe', couleur='currentColor', or_='#2E9C95'):
 
 
 def marque(lien=True):
-    nom, sous = (MARQUE_AR['nom'], MARQUE_AR['sous_titre']) if L == 'ar' else (MARQUE['nom'], MARQUE['sous_titre'])
-    contenu = f'{logo()}<span><span class="marque-nom">{nom}</span><span class="marque-sous">{sous}</span></span>'
+    # Le nom dans les deux écritures, la langue de la page en premier.
+    if L == 'ar':
+        nom, second = MARQUE_AR['nom'], f'<span class="marque-latin" lang="fr">{MARQUE["nom"]}</span>'
+    else:
+        nom, second = MARQUE['nom'], f'<span class="marque-ar" lang="ar">{MARQUE["nom_ar"]}</span>'
+    contenu = f'{logo()}<span class="marque-texte"><span class="marque-nom">{nom}</span>{second}</span>'
     return f'<a class="marque" href="index.html" aria-label="{nom} — {t("accueil", "الرئيسية")}">{contenu}</a>' if lien else contenu
 
 
@@ -265,8 +269,6 @@ def accueil():
     qr = ''.join(f'<div class="qr"><p class="qr-q">{q}</p><p class="qr-r">{r}</p></div>' for q, r in questions)
     corps = f'''
     <section class="seuil">
-      <div class="seuil-cote seuil-cote-g motif-couv" aria-hidden="true">{couverture('medine', MOTIFS['medine'])}</div>
-      <div class="seuil-cote seuil-cote-d motif-couv" aria-hidden="true">{couverture('alhambra', MOTIFS['alhambra'])}</div>
       <div class="seuil-arc">
         <p class="seuil-nom ar" lang="ar">سكينة</p>
         <h1>{t("Les mots justes pour les moments qui comptent", "الكلمة الصادقة للحظات التي تبقى")}</h1>
@@ -649,7 +651,7 @@ def charte():
           <p class="chapo">Un arc brisé (le mihrab, qui oriente la prière) abrite l'étoile à huit branches (le khâtam), motif fondateur de la géométrie islamique.</p>
           <div class="logos">
             <div style="background:var(--sable)"><span class="marque" style="pointer-events:none">{marque(False)}</span></div>
-            <div style="background:var(--nuit)"><span class="marque" style="color:#FFFFFF;pointer-events:none">{logo(couleur="#FFFFFF", or_="#A8DCD5")}<span><span class="marque-nom">{MARQUE["nom"]}</span><span class="marque-sous" style="color:#A9B2C0">{MARQUE["sous_titre"]}</span></span></span></div>
+            <div style="background:var(--nuit)"><span class="marque" style="color:#FFFFFF;pointer-events:none">{logo(couleur="#FFFFFF", or_="#A8DCD5")}<span class="marque-texte"><span class="marque-nom">{MARQUE["nom"]}</span><span class="marque-ar" lang="ar" style="color:#A8DCD5">{MARQUE["nom_ar"]}</span></span></span></div>
             <div style="background:var(--blanc)">{logo(classe="", couleur="#12233F").replace('<svg ', '<svg width="72" ')}</div>
           </div>
         </div>
@@ -700,6 +702,7 @@ def charte():
               <li>Le Reem Kufi pour un verset ; l'arabe en italique ou étiré artificiellement.</li>
               <li>Le vert « drapeau » ; les clichés orientalistes (lanternes partout, dômes).</li>
               <li>L'or, l'ivoire et le crème : ils n'appartiennent pas à cette identité.</li>
+              <li>Les petites capitales espacées et les cadres rectangulaires : l'arc brisé et la frise les remplacent.</li>
             </ul></div>
           </div>
         </div>

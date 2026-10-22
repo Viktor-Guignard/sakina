@@ -24,7 +24,7 @@
       ex: n => `${n} exemplaires`, unite: p => `soit ${p} le livret`, ttc: 'TTC, hors livraison', devis: 'Au-delà de 24 pages : sur devis.',
     },
     ar: {
-      pages: n => `${chiffres(n)} صفحة`, conseille: 'مقترح', copie: 'نُسخ الرابط: أرسلوه إلى إمامكم للمراجعة.',
+      pages: n => `${chiffres(n)} ${n >= 3 && n <= 10 ? 'صفحات' : 'صفحة'}`,   // accord du nombre en arabe conseille: 'مقترح', copie: 'نُسخ الرابط: أرسلوه إلى إمامكم للمراجعة.',
       copieManuelle: 'انسخ هذا الرابط:', voirTous: 'عرض المكتبة كاملة', voirMoins: 'نصوص المناسبة فقط',
       monter: 'إلى الأعلى', descendre: 'إلى الأسفل', supprimer: 'حذف', titreFr: 'العنوان (بالفرنسية)', texteFr: 'النص (بالفرنسية)',
       titreAr: 'العنوان (بالعربية)', texteAr: 'النص (بالعربية)', imprimer: 'تُفتح نافذة: اختر PDF وجهةً، واضبط الهوامش على «بلا».',
@@ -107,15 +107,17 @@
 
   function couverture(cle, e) {
     const g = D.motifs[cle];
-    let svg = g.svg
+    const boite = document.createElement('div');
+    boite.innerHTML = g.svg
       .replace('@@PHRASE@@', esc(e.phrase)).replace('@@TAILLE@@', e.phrase.length > 14 ? 11 : 15)
-      .replace('@@TITRE@@', esc(arabe(e.titre) ? e.titre : e.titre.toUpperCase()))
-      .replace('@@NOMS@@', esc(e.noms)).replace('@@DATE@@', esc(arabe(e.date) ? e.date : e.date.toUpperCase()));
-    // L'espacement des lettres casse les liaisons de l'arabe ; Marcellus n'a pas de glyphes arabes.
-    if (arabe(e.titre)) svg = svg.replace('letter-spacing="1.6"', 'letter-spacing="0"').replace('font-size="5.2" font-weight="700"', 'font-size="7" font-weight="700"');
-    if (arabe(e.noms)) svg = svg.replace('font-family="Marcellus, serif" font-size="12"', 'font-family="Amiri, serif" font-size="14"');
-    if (arabe(e.date)) svg = svg.replace('font-size="4" letter-spacing=".8"', 'font-size="5" letter-spacing="0"');
-    return svg;
+      .replace('@@TITRE@@', esc(e.titre)).replace('@@NOMS@@', esc(e.noms)).replace('@@DATE@@', esc(e.date));
+    // Marcellus et Manrope n'ont pas de glyphes arabes : on passe en Amiri, un peu plus grand.
+    const arabiser = (classe, taille) => {
+      const t = boite.querySelector('.' + classe);
+      if (t && arabe(t.textContent)) { t.setAttribute('font-family', 'Amiri, serif'); t.setAttribute('font-size', taille); }
+    };
+    arabiser('c-titre', 7.5); arabiser('c-noms', 14); arabiser('c-date', 5.4);
+    return boite.innerHTML;
   }
 
   function dessinerMotifs() {
@@ -261,7 +263,7 @@
 
   function pageInterieure() {
     const p = nouvellePage('lp-int');
-    p.innerHTML = '<div class="lp-filet"></div><div class="lp-corps"></div><div class="lp-folio"></div>';
+    p.innerHTML = '<div class="lp-frise lp-frise-haut"></div><div class="lp-corps"></div><div class="lp-frise lp-frise-bas"></div><div class="lp-folio"></div>';
     return p.querySelector('.lp-corps');
   }
 
@@ -312,7 +314,7 @@
 
     // Un livret piqué compte un multiple de quatre pages : on complète avec des pages de notes.
     let total = apercu.childElementCount + 1;
-    while (total % 4) { nouvellePage('lp-int lp-vide').innerHTML = `<div class="lp-filet"></div><div class="lp-vide-orn">${SVG_KHATAM}</div>`; total++; }
+    while (total % 4) { nouvellePage('lp-int lp-vide').innerHTML = `<div class="lp-frise lp-frise-haut"></div><div class="lp-vide-orn">${SVG_KHATAM}</div><div class="lp-frise lp-frise-bas"></div>`; total++; }
 
     const dos = nouvellePage('lp-dos');
     dos.innerHTML = `<div class="lp-dos-int">${SVG_KHATAM}
@@ -324,6 +326,7 @@
     apercu.querySelectorAll('.lp-folio').forEach((f, i) => {
       const n = i + 2;
       f.innerHTML = etat.langue === 'ar' ? chiffres(n) : n;
+      f.classList.add(n % 2 ? 'lp-folio-impair' : 'lp-folio-pair');   // toujours sur le bord extérieur
     });
     document.getElementById('nb-pages').textContent = UI.pages(apercu.childElementCount);
     ajusterZoom();
