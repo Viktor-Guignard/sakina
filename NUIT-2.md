@@ -1,10 +1,14 @@
 # Nuit du 18 au 19/11/2026 : travail en autonomie jusqu'à 12 h (heure de Paris)
 
-Un réveil par heure. À chaque réveil : prendre la première tâche non cochée, la faire, la vérifier
-dans le navigateur (captures), relancer `npm test`, enregistrer une version (commit), mettre à jour
-la sauvegarde `/home/user/livrables/sakina-<date>.zip`, noter le résultat dans le journal ci-dessous.
+Objectif de Viktor : un site **complet**, où il ne lui reste plus qu'à connecter Stripe et l'envoi
+automatique des courriels (clés à mettre dans Cloudflare). Penser au **référencement**.
 
-Règles : rien n'est poussé, publié, supprimé ni envoyé. Pas de nouveau texte religieux sans le
+Un réveil par heure. À chaque réveil : prendre la première tâche non cochée, la faire, la vérifier
+dans le navigateur (captures), relancer `npm test`, enregistrer une version (commit), **pousser sur la
+branche `travail`** (autorisé par Viktor ; jamais sur `main`, qui republierait le site), mettre à jour
+la sauvegarde zip, noter le résultat dans le journal ci-dessous.
+
+Règles : rien n'est publié (pas de push sur main), supprimé ni envoyé. Pas de nouveau texte religieux sans le
 signaler « à relire ». Charte Iznik, arc brisé, aucune ressemblance avec livretsdemesse.
 
 ## Tâches (UX / UI d'abord)
@@ -19,6 +23,18 @@ signaler « à relire ». Charte Iznik, arc brisé, aucune ressemblance avec liv
 - [ ] 8. Compositeur sur téléphone : passer de la question à l'aperçu sans se perdre (bouton « Voir l'aperçu »).
 - [ ] 9. Poids des pages et vitesse (images, scripts) ; vérifier le premier affichage sur téléphone.
 - [ ] 10. Relecture générale FR/AR des nouveaux libellés (orthographe, accords, sens de lecture).
-- [ ] 11. Rapport du matin : ce qui a été fait, captures avant/après, ce qui attend Viktor.
+- [ ] 11. Référencement (1) : titres et descriptions uniques par page, balise canonique, hreflang FR/AR complet,
+        Open Graph et image de partage (générée, au motif), données structurées (Organization, BreadcrumbList, FAQPage, Product).
+- [ ] 12. Référencement (2) : une page par pièce (« Faire-part de mariage musulman », « Livret de nikâh »,
+        « Carnet du pèlerin »…), en FR et AR, avec texte utile, liens internes, lien vers le compositeur.
+- [ ] 13. Page « Questions fréquentes » (FR/AR) : délais, épreuve, relecture, livraison, paiement, respect du sacré.
+- [ ] 14. Page « Comment ça marche » + page Contact : formulaire relié au service (messages en base D1, courriel
+        à l'administration quand Brevo sera branché), visible dans l'administration.
+- [ ] 15. Courriels automatiques complets et soignés (FR/AR) : confirmation, épreuve, rappel d'épreuve non validée
+        (tâche planifiée Cloudflare), expédition, devis ; page d'aperçu des courriels dans l'administration.
+- [ ] 16. Mise en ligne prête : _headers (sécurité, cache), page 404 FR/AR, redirections, build Cloudflare,
+        script `npm run verifier` qui contrôle la configuration ; BACKEND.md réduit à « mettre les clés ».
+- [ ] 17. Pied de page et menus : liens vers FAQ, contact, pièces, pages légales (quand validées : laisser l'interrupteur).
+- [ ] 18. Rapport de midi : ce qui a été fait, captures avant/après, ce qui attend Viktor (Stripe, courriels, juriste, imam, domaine).
 
 ## Journal
