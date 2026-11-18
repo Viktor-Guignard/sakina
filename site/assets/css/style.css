@@ -678,3 +678,10 @@ html[lang="ar"] .suivi-statut { font-family: var(--f-titre-ar); }
 .filigrane .lp-page::after { content: ""; position: absolute; inset: 0; z-index: 5; pointer-events: none;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='150' viewBox='0 0 220 150'%3E%3Cg transform='rotate%28-32 110 75%29' fill='%237B8794' fill-opacity='.26' text-anchor='middle'%3E%3Ctext x='110' y='70' font-family='Georgia%2C serif' font-size='26'%3ESak%C3%AEna%3C/text%3E%3Ctext x='110' y='100' font-family='serif' font-size='22'%3E%D8%B3%D9%83%D9%8A%D9%86%D8%A9%3C/text%3E%3C/g%3E%3C/svg%3E") repeat center / 62mm auto;
   -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+/* Atelier : fichier pour l'imprimeur, 3 mm de fond perdu autour de chaque page */
+@media print {
+  .atelier .lp-cadre-ext, .atelier .lp-cadre-ext:first-child { width: calc(var(--lw) + 6mm); height: calc(var(--lh) + 6mm); background: var(--perdu, #FFF);
+    -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .atelier .lp-page { top: 3mm; left: 3mm; }
+}

@@ -369,6 +369,9 @@
     const cadre = document.createElement('div');
     cadre.className = 'lp-cadre-ext';
     cadre.style.setProperty('--lw', l + 'mm'); cadre.style.setProperty('--lh', h + 'mm');
+    // Couleur du fond perdu : celle du motif pour la couverture, le dos et le recto des cartes.
+    const plein = /lp-couv|lp-dos|lc-recto/.test(classe) || (/lc-long/.test(classe) && !/lc-verso/.test(classe));
+    cadre.style.setProperty('--perdu', plein ? g.fond : '#FFFFFF');
     cadre.appendChild(p);
     apercu.appendChild(cadre);
     return p;
@@ -475,7 +478,9 @@
     const [l, h] = modele().format;
     let st = document.getElementById('format-page');
     if (!st) { st = document.createElement('style'); st.id = 'format-page'; document.head.appendChild(st); }
-    st.textContent = `@page { size: ${l}mm ${h}mm; margin: 0; }`;
+    // Atelier : 3 mm de fond perdu de chaque côté, comme le demande l'imprimeur.
+    const perdu = document.documentElement.classList.contains('atelier') ? 6 : 0;
+    st.textContent = `@page { size: ${l + perdu}mm ${h + perdu}mm; margin: 0; }`;
   }
 
   function ajusterZoom() {
@@ -798,7 +803,7 @@
     let j = null;
     try { j = sessionStorage['sakina-admin']; } catch (e) { /* stockage indisponible */ }
     if (j) fetch(D.api + '/api/admin/commandes?statut=annulee', { headers: { Authorization: 'Bearer ' + j } })
-      .then(r => { if (r.ok) apercu.classList.remove('filigrane'); }).catch(() => {});
+      .then(r => { if (r.ok) { apercu.classList.remove('filigrane'); document.documentElement.classList.add('atelier'); composer(); } }).catch(() => {});
   }
   window.addEventListener('resize', ajusterZoom);
   remplir();
