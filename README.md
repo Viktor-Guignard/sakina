@@ -13,3 +13,10 @@ En ligne : https://viktor-guignard.github.io/sakina/ (publié par `.github/workf
 Aperçu local : `python3 -m http.server 4181 --directory site`.
 
 À faire avant toute mise en ligne publique : faire relire les textes arabes, les versets et les invocations par un imam ou un arabisant ; choisir le nom et le domaine ; auto-héberger les polices (Google Fonts en prototype).
+
+## Ajouts de novembre 2026
+
+- `modeles.py` : les pièces du compositeur (livret de cérémonie, carnet du pèlerin, 30 nuits de Ramadan, prière de l'Aïd,
+  livret du prénom, registre de condoléances ; faire-part, invitation, menu, carte de remerciement, étiquettes, marque-page, certificat de khatm).
+- `assets/js/livret3d.js` : feuilleter la pièce en 3D (bouton au-dessus de l'aperçu).
+- `functions/`, `migrations/`, `wrangler.toml` : service de commande (Cloudflare + Stripe), voir `BACKEND.md`. Test : `npm test`.

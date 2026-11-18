@@ -120,7 +120,7 @@ SCRIPT_COMMUN = '''
   </script>'''
 
 
-def page(fichier, titre, description, corps, actif='', scripts=''):
+def page(fichier, titre, description, corps, actif='', scripts='', robots=''):
     r = racine()
     nav = [('ceremonies.html', t("Le fil d'une vie", 'مسيرة العمر')), ('motifs.html', t('Motifs', 'الزخارف')),
            ('respect.html', t('Notre éthique', 'ميثاقنا'))]
@@ -154,6 +154,7 @@ def page(fichier, titre, description, corps, actif='', scripts=''):
   <meta property="og:title" content="{escape(titre)}">
   <meta property="og:description" content="{escape(description)}">
   <meta name="theme-color" content="#0F2747">
+  {f'<meta name="robots" content="{robots}">' if robots else ''}
   {alternates}
   <link rel="icon" href="{r}assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -636,6 +637,68 @@ def composer():
 
 # ------------------------------------------------------------------ charte graphique (français seulement)
 
+def suivi():
+    """Suivi d'une commande (lien personnel envoyé au client) : statut, épreuve à valider, paiement."""
+    r = racine()
+    corps = f'''
+    <section class="section">
+      <div class="conteneur suivi" id="suivi" data-langue-site="{L}">
+        <h1>{t('Votre commande', 'طلبكم')}</h1>
+        <p class="chapo" id="suivi-intro">{t('Chargement…', 'جارٍ التحميل…')}</p>
+        <div id="suivi-contenu" hidden>
+          <div class="suivi-carte">
+            <p class="suivi-statut" id="suivi-statut"></p>
+            <p id="suivi-piece"></p>
+            <p id="suivi-prix" class="aide"></p>
+            <ol class="suivi-etapes" id="suivi-etapes"></ol>
+          </div>
+          <div class="suivi-carte" id="suivi-payer" hidden>
+            <p>{t('Le prix est fixé : vous pouvez régler en ligne.', 'السعر محدّد: يمكنكم الدفع عبر الإنترنت.')}</p>
+            <button type="button" class="btn btn-or" id="payer">{t('Payer en ligne', 'الدفع عبر الإنترنت')}</button>
+          </div>
+          <div class="suivi-carte" id="suivi-epreuve" hidden>
+            <h2>{t('Votre épreuve', 'نسخة المراجعة')}</h2>
+            <p>{t("Relisez chaque page, et faites relire les versets par votre imam. Rien n'est imprimé avant votre accord.", 'راجعوا كل صفحة، واعرضوا الآيات على إمامكم. لا يُطبع شيءٌ قبل موافقتكم.')}</p>
+            <a class="btn btn-contour" id="voir-epreuve" href="#" target="_blank" rel="noopener">{t("Ouvrir l'épreuve", 'فتح نسخة المراجعة')}</a>
+            <div class="suivi-decision">
+              <button type="button" class="btn btn-or" id="valider">{t("Je valide l'épreuve", 'أوافق على النسخة')}</button>
+              <label class="champ"><span>{t('Ou dites-nous ce qu’il faut corriger', 'أو أخبرونا بما يجب تعديله')}</span><textarea id="remarque" rows="3" maxlength="2000"></textarea></label>
+              <button type="button" class="btn btn-contour" id="corriger">{t('Demander une correction', 'طلب تعديل')}</button>
+            </div>
+          </div>
+          <p class="aide" id="suivi-message" role="status"></p>
+        </div>
+      </div>
+    </section>'''
+    scripts = f'<script src="{r}assets/js/suivi.js?v={version("assets/js/suivi.js")}"></script>'
+    page('suivi.html', t(f'{MARQUE["nom"]} · Suivi de commande', 'سكينة · متابعة الطلب'),
+         t('Le suivi de votre commande Sakîna.', 'متابعة طلبكم لدى سكينة.'), corps, '', scripts, robots='noindex, nofollow')
+
+
+def admin():
+    """Administration des commandes (français seulement, jamais indexée ; à protéger aussi par Cloudflare Access)."""
+    corps = '''
+    <section class="section">
+      <div class="conteneur admin" id="admin">
+        <h1>Commandes</h1>
+        <form class="admin-connexion" id="admin-connexion">
+          <label class="champ"><span>Mot de passe d’administration</span><input type="password" name="jeton" autocomplete="current-password" required></label>
+          <button class="btn btn-or">Entrer</button>
+        </form>
+        <div id="admin-app" hidden>
+          <div class="admin-filtres" id="admin-filtres"></div>
+          <div class="admin-grille">
+            <div class="admin-liste" id="admin-liste"></div>
+            <div class="admin-detail" id="admin-detail"><p class="aide">Choisissez une commande.</p></div>
+          </div>
+        </div>
+        <p class="aide" id="admin-message" role="status"></p>
+      </div>
+    </section>'''
+    scripts = f'<script src="assets/js/admin.js?v={version("assets/js/admin.js")}"></script>'
+    page('admin.html', 'Sakîna · Administration', 'Administration des commandes.', corps, '', scripts, robots='noindex, nofollow')
+
+
 def charte():
     couleurs = [
         ('Bleu de nuit', '#0F2747', 'Fonds sombres, titres, pied de page.'),
@@ -771,8 +834,10 @@ def generer(langue):
     motifs()
     respect()
     composer()
+    suivi()
     if langue == 'fr':
         charte()
+        admin()
 
 
 if __name__ == '__main__':
@@ -783,7 +848,7 @@ if __name__ == '__main__':
     shutil.copytree(RACINE / 'assets' / 'js', SITE / 'assets' / 'js')
     favicon()
     donnees_compositeur()
-    PAGES_AR.update(['index.html', 'ceremonies.html', 'motifs.html', 'respect.html', 'composer.html']
+    PAGES_AR.update(['index.html', 'ceremonies.html', 'motifs.html', 'respect.html', 'composer.html', 'suivi.html']
                     + [f'ceremonie-{c["id"]}.html' for c in CEREMONIES])
     generer('fr')
     generer('ar')

@@ -636,3 +636,37 @@ html[lang="ar"] .s3d-titre { font-family: var(--f-titre-ar); }
 .s3d-nav { display: flex; align-items: center; justify-content: center; gap: 18px; padding: 12px 18px 22px; }
 .s3d-aide { margin: 0; max-width: 34ch; text-align: center; font-size: var(--corps-xs); color: rgba(255, 255, 255, .72); }
 @media (max-width: 520px) { .s3d-titre { display: none; } }
+
+/* =========================================================================
+   Suivi de commande et administration
+   ========================================================================= */
+.suivi { max-width: 720px; }
+.suivi-carte { margin: 0 0 18px; padding: 20px 22px; border-radius: var(--r-lg); background: var(--blanc); box-shadow: var(--ombre); }
+.suivi-statut { margin: 0 0 6px; font: 400 var(--corps-lg) var(--f-titre); color: var(--nuit); }
+html[lang="ar"] .suivi-statut { font-family: var(--f-titre-ar); }
+.suivi-etapes { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 16px 0 0; padding: 0; list-style: none; font-size: var(--corps-sm); color: var(--encre-douce); }
+.suivi-etapes li::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-inline-end: 7px; border: 1.5px solid var(--turquoise); border-radius: 50%; vertical-align: 1px; }
+.suivi-etapes li.faite::before { background: var(--turquoise); }
+.suivi-etapes li.courante { color: var(--nuit); font-weight: 700; }
+.suivi-etapes li.courante::before { background: var(--or-fonce); border-color: var(--or-fonce); }
+.suivi-decision { display: grid; gap: 12px; margin-top: 16px; }
+.admin-grille { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 20px; align-items: start; }
+@media (max-width: 860px) { .admin-grille { grid-template-columns: 1fr; } }
+.admin-filtres { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.admin-filtres button { padding: 6px 12px; border: 1px solid var(--filet); border-radius: 10px; background: var(--blanc); font: 600 var(--corps-xs) var(--f-texte); cursor: pointer; }
+.admin-filtres button[aria-pressed="true"] { border-color: var(--or-fonce); color: var(--or-fonce); }
+.admin-liste { display: grid; gap: 8px; }
+.admin-ligne { display: grid; gap: 3px; padding: 12px 14px; border: 1.5px solid var(--filet); border-radius: 14px; background: var(--blanc); text-align: start; font: 400 var(--corps-sm) var(--f-texte); cursor: pointer; }
+.admin-ligne.active { border-color: var(--or-fonce); }
+.admin-ligne small { color: var(--encre-douce); }
+.admin-badge { display: inline-block; padding: 1px 8px; border-radius: 8px; background: var(--sable-2); font-size: var(--corps-xs); font-weight: 700; color: var(--nuit); }
+.admin-payee, .admin-corrections { background: #FCE3DE; color: var(--grenade); }
+.admin-epreuve_validee { background: #D6EFE9; color: var(--emeraude); }
+.admin-detail { padding: 20px; border-radius: var(--r-lg); background: var(--blanc); box-shadow: var(--ombre); }
+.admin-dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: var(--corps-sm); }
+.admin-dl dt { font-weight: 700; color: var(--nuit); }
+.admin-dl dd { margin: 0; }
+.admin-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.admin-histo { font-size: var(--corps-xs); color: var(--encre-douce); }
+.admin-histo code { font-size: .72rem; word-break: break-all; }
+.admin-connexion { max-width: 360px; }

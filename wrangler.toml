@@ -1,0 +1,32 @@
+# Sakîna sur Cloudflare Pages : le site (dossier site/, généré par build.py) et le
+# service de commande (dossier functions/). Rien n'est en ligne tant que le projet
+# n'a pas été créé et publié sur le compte Cloudflare de Sakîna (voir BACKEND.md).
+name = "sakina"
+pages_build_output_dir = "site"
+compatibility_date = "2026-10-01"
+
+[vars]
+# Adresse publique du site, pour les liens envoyés aux clients (épreuve, suivi).
+SITE_URL = "http://localhost:8788"
+# Frais de livraison TTC en centimes ; vide = pas de ligne de livraison (à décider).
+LIVRAISON_CENTIMES = ""
+# Pays où l'on livre (codes ISO, séparés par des virgules).
+PAYS_LIVRAISON = "FR,BE,LU,CH,MC"
+# Adresse qui reçoit les nouvelles commandes, et expéditeur des courriels (à décider).
+ADMIN_EMAIL = ""
+EXPEDITEUR_EMAIL = ""
+EXPEDITEUR_NOM = "Sakîna"
+
+# Secrets (jamais dans ce fichier) : `wrangler pages secret put NOM` en ligne,
+# fichier .dev.vars en local.
+#   STRIPE_SECRET_KEY       clé secrète Stripe (compte Sakîna, distinct de livretsdemesse)
+#   STRIPE_WEBHOOK_SECRET   secret de signature du webhook Stripe (whsec_…)
+#   ADMIN_JETON             mot de passe de la page d'administration
+#   SEL_IP                  sel pour ne garder qu'une empreinte des adresses IP
+#   BREVO_API_KEY           facultatif : envoi des courriels (sinon, rien n'est envoyé)
+
+[[d1_databases]]
+binding = "DB"
+database_name = "sakina"
+database_id = "a-remplacer-apres-creation"
+migrations_dir = "migrations"
