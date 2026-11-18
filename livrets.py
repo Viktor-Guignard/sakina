@@ -173,6 +173,19 @@ TEXTES = {
         'tr': "Kullu nafsin dhâ'iqatu l-mawt.",
         'fr': "Toute âme goûtera la mort.",
     },
+    'zukhruf13': {
+        'nature': 'coran', 'ref_fr': 'Sourate Az-Zukhruf, 43 : 13-14 (invocation du voyage)', 'ref_ar': 'سورة الزخرف، الآيتان ١٣-١٤ (دعاء السفر)',
+        'ar': 'سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَٰذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ ﴿١٣﴾ وَإِنَّا إِلَىٰ رَبِّنَا لَمُنقَلِبُونَ ﴿١٤﴾',
+        'tr': "Subhâna lladhî sakhkhara lanâ hâdhâ wa mâ kunnâ lahû muqrinîn, wa innâ ilâ rabbinâ la-munqalibûn.",
+        'fr': "Gloire à Celui qui a mis ceci à notre service, alors que nous n'aurions pu le maîtriser ; et c'est vers "
+              "notre Seigneur que nous retournerons.",
+    },
+    'laylat_qadr': {
+        'nature': 'hadith', 'ref_fr': 'Invocation des dernières nuits de Ramadan (at-Tirmidhî, Ibn Mâja)', 'ref_ar': 'دعاء العشر الأواخر (رواه الترمذي وابن ماجه)',
+        'ar': 'اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي',
+        'tr': "Allâhumma innaka 'afuwwun tuhibbu l-'afwa fa-'fu 'annî.",
+        'fr': "Ô Dieu, Tu es Celui qui efface les fautes et Tu aimes effacer : efface les miennes.",
+    },
 }
 
 # Par cérémonie : textes proposés (les premiers, jusqu'à « defaut », sont cochés

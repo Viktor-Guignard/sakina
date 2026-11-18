@@ -10,14 +10,20 @@ Le contenu est dans contenu.py, contenu_ar.py et livrets.py.
 """
 import hashlib
 import json
+import os
 import shutil
 from html import escape
 from pathlib import Path
 
 from contenu import MARQUE, CEREMONIES, MOTIFS
 from contenu_ar import MARQUE_AR, CEREMONIES_AR, MOTIFS_AR
-from couvertures import couverture, etoile, arc_brise
+from couvertures import couverture, etoile, arc_brise, motif
 from livrets import TEXTES, LIVRETS, TARIFS_VISTAPRINT, MARGE, TVA
+from modeles import MODELES, JUZ, OCCASIONS, TARIFS_PAPETERIE, QUANTITES_PAPETERIE
+
+# Service de commande (Cloudflare Pages Functions, dossier functions/). SAKINA_API vide = même site ;
+# une adresse = un autre domaine ; absent = pas de commande en ligne (site statique seul, GitHub Pages).
+API = os.environ.get('SAKINA_API')
 
 RACINE = Path(__file__).parent
 SITE = RACINE / 'site'
@@ -382,6 +388,8 @@ def page_ceremonie(c):
     intro = ''.join(f'<p class="chapo">{escape(p)}</p>' for p in cv(c, 'intro'))
     motifs = ''.join(carte_motif(k, c['id']) for k in c['motifs'])
     nom = cv(c, 'nom')
+    pieces = ''.join(f'<li><a href="composer.html?c={c["id"]}&amp;p={k}">{escape(m["nom_ar"] if L == "ar" else m["nom_fr"])}</a></li>'
+                     for k, m in MODELES.items() if c['id'] in m['ceremonies'])
     # Cérémonies voisines sur le fil de la vie (ou de l'année).
     suite = VIE if c['id'] in VIE else ANNEE
     i = suite.index(c['id'])
@@ -407,6 +415,7 @@ def page_ceremonie(c):
         </div>
         <aside>
           <div class="encadre"><h3>{t('Ce que nous préparons', 'ما نُعدّه لكم')}</h3><ul>{produits}</ul></div>
+          <div class="encadre"><h3>{t('À composer en ligne', 'تُصمَّم عبر الإنترنت')}</h3><ul class="liste-pieces">{pieces}</ul></div>
           <div class="encadre encadre-note"><h3>{t('À noter', 'للعلم')}</h3><p style="margin:0;color:var(--encre-douce);font-size:.92rem">{escape(cv(c, "note"))}</p></div>
           <a class="btn btn-or" style="width:100%" href="composer.html?c={c["id"]}">{t('Composer ce livret', 'صمّم هذا الكتيّب')}</a>
         </aside>
@@ -486,7 +495,7 @@ def donnees_compositeur():
     gabarits = {}
     for cle, m in MOTIFS.items():
         g = dict(m, phrase='@@PHRASE@@', titre='@@TITRE@@', noms='@@NOMS@@', date='@@DATE@@', taille_ar='@@TAILLE@@')
-        gabarits[cle] = {'svg': couverture(cle, g), 'nom_fr': m['nom'], 'nom_ar': MOTIFS_AR[cle],
+        gabarits[cle] = {'svg': couverture(cle, g), 'decor': motif(m['motif'], m), 'nom_fr': m['nom'], 'nom_ar': MOTIFS_AR[cle],
                          'fond': m['fond'], 'trait': m['trait'], 'accent': m['accent'], 'texte': m['texte']}
     ceremonies = {}
     for c in CEREMONIES:
@@ -495,19 +504,30 @@ def donnees_compositeur():
                                    deroule=[{'fr_t': f[0], 'fr_d': f[1], 'ar_t': ar[0], 'ar_d': ar[1]}
                                             for f, ar in zip(c['deroule'], a['deroule'])])
     data = {'textes': TEXTES, 'ceremonies': ceremonies, 'ordre': [c['id'] for c in CEREMONIES], 'motifs': gabarits,
-            'email': MARQUE['email'], 'tarifs': TARIFS_VISTAPRINT, 'marge': MARGE, 'tva': TVA}
+            'modeles': MODELES, 'juz': JUZ, 'occasions': OCCASIONS, 'api': API,
+            'tarifs': TARIFS_VISTAPRINT, 'tarifs_papeterie': TARIFS_PAPETERIE, 'quantites_papeterie': QUANTITES_PAPETERIE,
+            'marge': MARGE, 'tva': TVA}
     (SITE / 'assets' / 'js').mkdir(parents=True, exist_ok=True)
     (SITE / 'assets' / 'js' / 'donnees.js').write_text(
         '/* Généré par build.py — ne pas modifier à la main */\nwindow.SAKINA = ' + json.dumps(data, ensure_ascii=False) + ';\n',
+        encoding='utf-8')
+    # Le serveur recalcule les prix et vérifie les pièces avec les mêmes données.
+    serveur = {'tarifs': TARIFS_VISTAPRINT, 'tarifs_papeterie': TARIFS_PAPETERIE, 'quantites_papeterie': QUANTITES_PAPETERIE,
+               'marge': MARGE, 'tva': TVA, 'ceremonies': {c['id']: {'fr': c['nom'], 'ar': CEREMONIES_AR[c['id']]['nom']} for c in CEREMONIES},
+               'modeles': {k: {'famille': m['famille'], 'ceremonies': m['ceremonies'], 'faces': m.get('faces'), 'fr': m['nom_fr'], 'ar': m['nom_ar'],
+                               'format': m['format']} for k, m in MODELES.items()}}
+    (RACINE / 'functions' / '_lib').mkdir(parents=True, exist_ok=True)
+    (RACINE / 'functions' / '_lib' / 'donnees.js').write_text(
+        '// Généré par build.py — ne pas modifier à la main\nexport default ' + json.dumps(serveur, ensure_ascii=False, indent=1) + ';\n',
         encoding='utf-8')
 
 
 def composer():
     """Le compositeur : une question à la fois, le livret se construit à côté."""
     r = racine()
-    q = lambda n, titre, aide, contenu: f'''
-          <section class="question" data-q="{n}"{'' if n == 0 else ' hidden'}>
-            <p class="question-num">{chiffres(str(n + 1))} / {chiffres('8')}</p>
+    q = lambda n, titre, aide, contenu, familles='': f'''
+          <section class="question" data-q="{n}"{f' data-familles="{familles}"' if familles else ''}{'' if n == 0 else ' hidden'}>
+            <p class="question-num">{chiffres(str(n + 1))} / {chiffres('9')}</p>
             <h2 class="question-titre">{titre}</h2>
             {f'<p class="question-aide">{aide}</p>' if aide else ''}
             {contenu}
@@ -515,16 +535,19 @@ def composer():
     questions = ''.join([
         q(0, t('Pour quelle occasion ?', 'لأيّ مناسبة؟'), t("Le déroulé, les versets et les mots d'accueil se préparent selon votre choix.", 'تُعَدّ المراحل والآيات وكلمات الترحيب بحسب اختياركم.'),
           '<div class="choix-occasions" id="f-ceremonie" role="radiogroup"></div>'),
-        q(1, t('Sous quel motif ?', 'بأيّ زخرفة؟'), t('Les motifs conseillés pour votre cérémonie viennent en premier.', 'الزخارف المقترحة لمناسبتكم تأتي أولًا.'),
+        q(1, t('Quelle pièce ?', 'أيّ قطعة؟'), t('Un livret à feuilleter, ou de la papeterie assortie : tout se compose sous le même motif.', 'كتيّبٌ يُتصفَّح، أو أوراقٌ متناسقة: كلّها بالزخرفة نفسها.'),
+          f'''<p class="pieces-titre">{t('Livrets A5', 'كتيّبات A5')}</p><div class="choix-pieces" id="f-pieces-livrets" role="radiogroup"></div>
+            <p class="pieces-titre">{t('Papeterie', 'أوراق المناسبة')}</p><div class="choix-pieces" id="f-pieces-cartes" role="radiogroup"></div>'''),
+        q(2, t('Sous quel motif ?', 'بأيّ زخرفة؟'), t('Les motifs conseillés pour votre cérémonie viennent en premier.', 'الزخارف المقترحة لمناسبتكم تأتي أولًا.'),
           '<div class="choix-motifs" id="f-motifs" role="radiogroup"></div>'),
-        q(2, t('En quelle langue ?', 'بأيّ لغة؟'), t("Les versets figurent toujours en arabe ; la traduction s'ajoute en français.", 'تبقى الآيات دائمًا بالعربية؛ وتُضاف الترجمة بالفرنسية.'),
+        q(3, t('En quelle langue ?', 'بأيّ لغة؟'), t("Les versets figurent toujours en arabe ; la traduction s'ajoute en français.", 'تبقى الآيات دائمًا بالعربية؛ وتُضاف الترجمة بالفرنسية.'),
           f'''<div class="choix-langues" role="radiogroup">
               <label><input type="radio" name="langue" value="fr"><span><strong>{t('Français', 'الفرنسية')}</strong><small>{t('Versets en arabe, traduits', 'الآيات بالعربية مع ترجمتها')}</small></span></label>
               <label><input type="radio" name="langue" value="bi"><span><strong>{t('Les deux', 'اللغتان')}</strong><small>{t('Chaque texte en français et en arabe', 'كل نص بالفرنسية والعربية')}</small></span></label>
               <label><input type="radio" name="langue" value="ar"><span><strong lang="ar">العربية</strong><small>{t('Se lit de droite à gauche', 'يُقرأ من اليمين إلى اليسار')}</small></span></label>
             </div>
             <label class="case"><input type="checkbox" name="translit"> {t('Ajouter la translittération (pour réciter sans lire l’arabe)', 'إضافة النطق اللاتيني (للتلاوة دون قراءة العربية)')}</label>'''),
-        q(3, t('Pour qui, et quand ?', 'لمن، ومتى؟'), '',
+        q(4, t('Pour qui, et quand ?', 'لمن، ومتى؟'), '',
           f'''<label class="champ"><span id="l-noms">{t('Noms', 'الأسماء')}</span><input name="noms" maxlength="60"></label>
             <div class="champ-genre" id="champ-genre" hidden>
               <span>{t('Invocations accordées au', 'صيغة الدعاء')}</span>
@@ -540,35 +563,46 @@ def composer():
               <label class="champ"><span>{t('Formule en arabe', 'العبارة العربية')}</span><input name="phrase" maxlength="40" dir="rtl" lang="ar" list="phrases"></label>
             </div>
             <datalist id="phrases"><option value="بارك الله لكما"><option value="ما شاء الله"><option value="مبروك"><option value="عيد مبارك"><option value="رمضان كريم"><option value="حج مبرور"><option value="ختم القرآن"><option value="إنا لله وإنا إليه راجعون"></datalist>'''),
-        q(4, t('Que voulez-vous dire à vos invités ?', 'ماذا تقولون لضيوفكم؟'), t('Un texte est proposé : gardez-le, ou écrivez le vôtre.', 'نقترح نصًّا: احتفظوا به أو اكتبوا نصّكم.'),
+        q(5, t('Que voulez-vous dire à vos invités ?', 'ماذا تقولون لضيوفكم؟'), t('Un texte est proposé : gardez-le, ou écrivez le vôtre.', 'نقترح نصًّا: احتفظوا به أو اكتبوا نصّكم.'),
           f'''<label class="case"><input type="checkbox" name="basmala"> {t('Ouvrir par la basmala', 'الافتتاح بالبسملة')} <span lang="ar">(بسم الله الرحمن الرحيم)</span></label>
             <div class="bloc-langue" data-pour="fr"><label class="champ"><span>{t("Mot d'accueil", 'كلمة الترحيب')} · FR</span><textarea name="accueil_fr" rows="3" lang="fr" dir="ltr"></textarea></label></div>
             <div class="bloc-langue" data-pour="ar"><label class="champ"><span>{t("Mot d'accueil", 'كلمة الترحيب')} · <span lang="ar">عربي</span></span><textarea name="accueil_ar" rows="3" lang="ar" dir="rtl"></textarea></label></div>
-            <label class="case"><input type="checkbox" name="avec_deroule"> {t('Expliquer le fil de la cérémonie', 'شرح سير المناسبة')}</label>
+            <label class="case"><input type="checkbox" name="avec_deroule"> <span id="l-deroule">{t('Expliquer le fil de la cérémonie', 'شرح سير المناسبة')}</span></label>
             <div id="f-deroule" class="etapes-edition"></div>
             <button type="button" class="btn-petit" id="ajout-etape">+ {t('Ajouter un moment', 'إضافة لحظة')}</button>'''),
-        q(5, t('Quels versets et invocations ?', 'أيّ آيات وأدعية؟'), t('Chacun est cité avec sa référence. Faites-les relire par votre imam.', 'كلٌّ منها بمرجعه. اعرضوها على إمامكم.'),
+        q(6, t('Quels versets et invocations ?', 'أيّ آيات وأدعية؟'), t('Chacun est cité avec sa référence. Faites-les relire par votre imam.', 'كلٌّ منها بمرجعه. اعرضوها على إمامكم.'),
           f'''<div id="f-textes" class="liste-textes"></div>
             <button type="button" class="btn-petit" id="voir-tous">{t('Voir toute la bibliothèque', 'عرض المكتبة كاملة')}</button>'''),
-        q(6, t('Comment conclure ?', 'كيف تختمون؟'), '',
+        q(7, t('Comment conclure ?', 'كيف تختمون؟'), '',
           f'''<div class="bloc-langue" data-pour="fr"><label class="champ"><span>{t('Dernier mot', 'كلمة الختام')} · FR</span><textarea name="fin_fr" rows="3" lang="fr" dir="ltr"></textarea></label></div>
             <div class="bloc-langue" data-pour="ar"><label class="champ"><span>{t('Dernier mot', 'كلمة الختام')} · <span lang="ar">عربي</span></span><textarea name="fin_ar" rows="3" lang="ar" dir="rtl"></textarea></label></div>
-            <label class="case"><input type="checkbox" name="mention"> {t('Au dos, la mention de respect (si le livret contient un verset)', 'على الظهر، تنبيه الاحترام (إن تضمّن الكتيّب آية)')}</label>'''),
-        q(7, t('Votre livret est prêt', 'كتيّبكم جاهز'), t("Avant d'imprimer, envoyez le lien à votre imam pour qu'il relise les versets et les invocations.", 'قبل الطباعة، أرسلوا الرابط إلى إمامكم ليراجع الآيات والأدعية.'),
-          f'''<div class="devis">
+            <label class="champ" id="champ-libres" hidden><span>{t('Pages à remplir à la main', 'صفحاتٌ تُملأ باليد')}</span><select name="libres"></select></label>''', 'livret'),
+        q(8, t('Votre pièce est prête', 'قطعتكم جاهزة'), t("Avant d'imprimer, envoyez le lien à votre imam pour qu'il relise les versets et les invocations.", 'قبل الطباعة، أرسلوا الرابط إلى إمامكم ليراجع الآيات والأدعية.'),
+          f'''<label class="case"><input type="checkbox" name="mention"> {t('La mention de respect, si la pièce contient un verset', 'تنبيه الاحترام، إن تضمّنت القطعة آية')}</label>
+            <div class="devis">
               <label class="champ"><span>{t('Combien d’exemplaires ?', 'كم نسخة؟')}</span><select name="quantite" id="f-quantite"></select></label>
               <p class="devis-prix" id="devis-prix" aria-live="polite"></p>
             </div>
             <div class="fin-actions">
               <button type="button" class="btn btn-or" id="partager">{t("Copier le lien pour relecture", 'نسخ الرابط للمراجعة')}</button>
               <button type="button" class="btn btn-contour" id="imprimer">{t('Enregistrer en PDF', 'حفظ بصيغة PDF')}</button>
-              <a class="btn btn-contour" id="commander" href="#">{t('Le faire imprimer', 'طلب الطباعة')}</a>
+              <a class="btn btn-contour" id="commander" href="#" aria-controls="commande">{t('Le faire imprimer', 'طلب الطباعة')}</a>
+            </div>
+            <div class="commande" id="commande" role="group" hidden>
+              <p class="question-aide">{t("Nous vous envoyons une épreuve : rien n'est imprimé avant votre accord.", 'نرسل إليكم نسخةً للمراجعة: لا يُطبع شيءٌ قبل موافقتكم.')}</p>
+              <label class="champ"><span>{t('Votre nom', 'الاسم')}</span><input name="c_nom" required maxlength="80" autocomplete="name"></label>
+              <label class="champ"><span>{t('Votre e-mail', 'البريد الإلكتروني')}</span><input name="c_email" type="email" required maxlength="120" autocomplete="email" dir="ltr"></label>
+              <label class="champ"><span>{t('Téléphone (facultatif)', 'الهاتف (اختياري)')}</span><input name="c_tel" type="tel" maxlength="30" autocomplete="tel" dir="ltr"></label>
+              <label class="champ"><span>{t('Un mot pour nous (facultatif)', 'كلمةٌ لنا (اختياري)')}</span><textarea name="c_message" rows="2" maxlength="1000"></textarea></label>
+              <label class="case"><input type="checkbox" name="c_relecture"> {t('Les versets et invocations ont été relus par un imam ou un arabisant', 'راجع الآياتِ والأدعيةَ إمامٌ أو عارفٌ بالعربية')}</label>
+              <label class="piege" aria-hidden="true">Site <input name="c_site" tabindex="-1" autocomplete="off"></label>
+              <button type="button" class="btn btn-or" id="envoyer-commande">{t('Continuer vers le paiement', 'متابعة إلى الدفع')}</button>
             </div>
             <p class="aide" id="message" role="status"></p>
             <button type="button" class="btn-petit" id="reinitialiser">{t('Revenir aux textes proposés', 'العودة إلى النصوص المقترحة')}</button>'''),
     ])
     etoiles = ''.join(f'<li><button type="button" data-aller="{n}" aria-label="{lib}"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1l2.6 3.7 4.4-.7-.7 4.4L20 10l-3.7 2.6.7 4.4-4.4-.7L10 20l-2.6-3.7-4.4.7.7-4.4L0 10l3.7-2.6-.7-4.4 4.4.7z"/></svg></button></li>'
-                      for n, lib in enumerate([t('Occasion', 'المناسبة'), t('Motif', 'الزخرفة'), t('Langue', 'اللغة'), t('Noms', 'الأسماء'),
+                      for n, lib in enumerate([t('Occasion', 'المناسبة'), t('Pièce', 'القطعة'), t('Motif', 'الزخرفة'), t('Langue', 'اللغة'), t('Noms', 'الأسماء'),
                                                t('Accueil', 'الترحيب'), t('Versets', 'الآيات'), t('Conclusion', 'الختام'), t('Prêt', 'جاهز')]))
     corps = f'''
     <section class="composer" data-langue-site="{L}">
@@ -585,13 +619,15 @@ def composer():
           </form>
         </div>
         <div class="compo-apercu">
-          <div class="apercu-barre"><span id="nb-pages"></span><span class="aide">A5 · 148 × 210 mm</span></div>
+          <div class="apercu-barre"><span id="nb-pages"></span><span class="aide" id="nom-format">A5 · 148 × 210 mm</span>
+            <button type="button" class="btn-petit btn-3d" id="voir-3d" aria-controls="scene-3d">{t('Feuilleter en 3D', 'تصفّح ثلاثي الأبعاد')}</button></div>
           <div class="apercu-pages" id="apercu" aria-live="polite"></div>
         </div>
       </div>
     </section>'''
     scripts = (f'<script src="{r}assets/js/donnees.js?v={version("site/assets/js/donnees.js")}"></script>\n'
-               f'<script src="{r}assets/js/composer.js?v={version("assets/js/composer.js")}"></script>')
+               f'<script src="{r}assets/js/composer.js?v={version("assets/js/composer.js")}"></script>\n'
+               f'<script src="{r}assets/js/livret3d.js?v={version("assets/js/livret3d.js")}"></script>')
     page('composer.html', t(f'{MARQUE["nom"]} · Composer un livret', 'سكينة · تصميم كتيّب'),
          t('Composez en ligne votre livret de cérémonie : nikâh, aqîqa, hajj, Aïd, janâza… En français, en arabe ou les deux, avec versets et invocations référencés.',
            'صمّم كتيّب مناسبتك عبر الإنترنت: النكاح، العقيقة، الحج، العيد، الجنازة… بالعربية أو بالفرنسية أو بهما معًا، مع آيات وأدعية موثّقة.'),

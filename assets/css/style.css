@@ -369,6 +369,19 @@ html[lang="ar"] .btn-petit { font-family: var(--f-texte-ar); }
 .choix-motif-nom em { display: block; font-style: normal; color: var(--emeraude); font-weight: 700; }
 
 .choix-langues { display: grid; gap: 10px; margin-bottom: 14px; }
+/* Pièces : livrets et papeterie */
+.pieces-titre { margin: 4px 0 8px; font-size: var(--corps-xs); font-weight: 700; color: var(--emeraude); }
+.choix-pieces { display: grid; gap: 8px; margin-bottom: 16px; }
+.piece { position: relative; display: grid; gap: 2px; padding: 11px 16px; border: 1.5px solid var(--filet); border-radius: 16px; cursor: pointer; }
+.piece input { position: absolute; opacity: 0; pointer-events: none; }
+.piece-nom { font-weight: 700; color: var(--nuit); }
+.piece-court { font-size: var(--corps-xs); line-height: 1.45; color: var(--encre-douce); }
+.piece:has(input:checked) { border-color: var(--or-fonce); background: color-mix(in srgb, var(--or-fonce) 7%, #fff); }
+.piece:has(input:focus-visible) { outline: 2px solid var(--turquoise); outline-offset: 2px; }
+/* Commande */
+.commande { margin-top: 16px; padding: 16px; border-radius: 18px; background: var(--sable); }
+.commande .case { margin-bottom: 12px; }
+.piege { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 .choix-langues label { position: relative; display: block; padding: 14px 18px; border: 1.5px solid var(--filet); border-radius: 16px; cursor: pointer; }
 .choix-langues strong { display: block; color: var(--nuit); }
 .choix-langues strong[lang="ar"] { font-family: var(--f-arabe); font-size: 1.2rem; }
@@ -411,9 +424,12 @@ html[lang="ar"] .btn-petit { font-family: var(--f-texte-ar); }
 
 /* L'aperçu : une planche des pages, à l'échelle --k */
 .compo-apercu { min-width: 0; padding: 18px; border-radius: 28px; background: var(--sable-2); }
-.apercu-barre { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: var(--corps-sm); font-weight: 700; color: var(--nuit); }
+.apercu-barre { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 14px; margin-bottom: 14px; font-size: var(--corps-sm); font-weight: 700; color: var(--nuit); }
+.btn-3d { padding: 4px 0; }
 .apercu-pages { --k: .5; display: flex; flex-wrap: wrap; gap: 16px; }
-.lp-cadre-ext { position: relative; width: calc(148mm * var(--k)); height: calc(210mm * var(--k)); flex: none; box-shadow: 0 10px 24px -14px rgba(15, 39, 71, .55); }
+.lp-cadre-ext { --lw: 148mm; --lh: 210mm; position: relative; width: calc(var(--lw) * var(--k)); height: calc(var(--lh) * var(--k)); flex: none; box-shadow: 0 10px 24px -14px rgba(15, 39, 71, .55); }
+.apercu-cartes .lp-cadre-ext:first-child { margin-inline-start: 0; }
+.apercu-cartes .lp-cadre-ext:has(.lc-rond) { border-radius: 50%; }
 .lp-cadre-ext:first-child { margin-inline-start: calc(148mm * var(--k) + 16px); }   /* la couverture seule, en belle page, puis les doubles pages */
 @media (max-width: 520px) { .lp-cadre-ext:first-child { margin-inline-start: 0; } }
 
@@ -421,7 +437,7 @@ html[lang="ar"] .btn-petit { font-family: var(--f-texte-ar); }
    Pages du livret (A5) — mêmes règles à l'écran et à l'impression
    ========================================================================= */
 .lp-page {
-  position: absolute; top: 0; left: 0; width: 148mm; height: 210mm; overflow: hidden; transform: scale(var(--k)); transform-origin: 0 0;
+  position: absolute; top: 0; left: 0; width: var(--lw, 148mm); height: var(--lh, 210mm); overflow: hidden; transform: scale(var(--k)); transform-origin: 0 0;
   background: #FFF; color: #14202E; font: 400 9.4pt/1.55 var(--f-texte); direction: ltr;
   -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
@@ -474,12 +490,149 @@ html[lang="ar"] .btn-petit { font-family: var(--f-texte-ar); }
 .lp-dos-marque { margin: 5mm 0 0; font: 400 9pt var(--f-titre); opacity: .8; }
 .lp-dos-marque [lang="ar"] { font-family: var(--f-arabe); }
 
+/* Ramadan : une nuit, son juz', quatre cases et une ligne */
+.lp-nuit { padding: 1.6mm 0 1.4mm; border-bottom: .2mm solid color-mix(in srgb, var(--t) 35%, transparent); }
+.lp-nuit-t { display: flex; align-items: center; gap: 2.4mm; font: 400 10.5pt/1.3 var(--f-titre); color: var(--a); }
+.lp-ar .lp-nuit-t { font-family: var(--f-arabe); font-weight: 700; }
+.lp-nuit-t [lang="ar"] { font-family: var(--f-arabe); }
+.lp-nuit-t small { margin-inline-start: auto; font: 400 7pt/1.3 var(--f-texte); color: #46546A; text-align: end; }
+.lp-ar .lp-nuit-t small, .lp-nuit-t small [lang="ar"] { font: 400 8.4pt/1.4 var(--f-arabe); }
+.lp-nuit-n { flex: none; display: grid; place-items: center; width: 6mm; height: 6mm; border: .25mm solid var(--a); border-radius: 50%; font: 600 7pt var(--f-texte); }
+.lp-nuit-dix .lp-nuit-n { background: var(--a); color: #FFF; }
+.lp-cases { display: flex; flex-wrap: wrap; gap: 1mm 4.5mm; margin: 1.2mm 0 .6mm; font-size: 7.4pt; color: #46546A; }
+.lp-ar .lp-cases, .lp-cases [lang="ar"] { font: 400 8.6pt/1.5 var(--f-arabe); }
+.lp-cases span { display: inline-flex; align-items: center; gap: 1.2mm; }
+.lp-cases i { width: 2.6mm; height: 2.6mm; border: .25mm solid var(--a); border-radius: .6mm; }
+.lp-ligne { display: block; height: 7mm; border-bottom: .2mm solid color-mix(in srgb, var(--t) 55%, transparent); }
+/* Pages libres : entrées à remplir (carnet du pèlerin, livret du prénom) et registre */
+.lp-entree { margin-bottom: 7mm; }
+.lp-entree-reg { margin-bottom: 4mm; }
+.lp-entree-t { display: flex; align-items: flex-end; gap: 2mm; margin: 0; font: 400 9.5pt var(--f-titre); color: var(--a); white-space: nowrap; }
+.lp-ar .lp-entree-t, .lp-entree-t [lang="ar"] { font-family: var(--f-arabe); font-weight: 700; }
+.lp-entree-t .lp-ligne { flex: 1; height: 5mm; }
+
+/* Papeterie : faces recto (fond SVG du motif + textes) et verso */
+.lp-carte { background: #FFF; }
+.lc-fond { position: absolute; inset: 0; width: 100%; height: 100%; }
+.lc-txt { position: absolute; left: 10%; right: 10%; top: 52%; text-align: center; color: var(--texte-dos); }
+.lc-txt-long { top: 40%; }
+.lc-txt-cote { left: auto; right: 6%; width: 34%; top: 50%; transform: translateY(-50%); }
+.lc-txt-rond { left: 12%; right: 12%; top: 50%; transform: translateY(-50%); }
+.lc-phrase { margin: 0; font: 400 15pt/1.5 var(--f-arabe); color: var(--a); }
+.lc-sombre .lc-phrase, .lc-sombre .lc-titre { color: var(--t); }
+.lc-titre { margin: 1mm 0 0; font: 600 7.4pt var(--f-texte); color: var(--a); }
+.lc-titre[lang="ar"] { font: 700 10pt var(--f-arabe); }
+.lc-noms { margin: 1.4mm 0 0; font: 400 13pt/1.25 var(--f-titre); }
+.lc-noms[lang="ar"] { font: 700 14pt/1.5 var(--f-arabe); }
+.lc-etoile { display: block; margin: 1.6mm auto; width: 3mm; }
+.lc-etoile .lp-etoile { fill: currentColor; opacity: .7; }
+.lc-date { margin: 0; font-size: 6.4pt; opacity: .8; }
+.lc-date[lang="ar"] { font: 400 8.4pt var(--f-arabe); }
+.lc-rond .lc-phrase { font-size: 11pt; }
+.lc-rond .lc-noms { font-size: 9pt; margin-top: .6mm; }
+.lc-rond .lc-etoile { margin: .8mm auto; width: 2mm; }
+.lc-rond .lc-date { font-size: 5pt; }
+.lc-long .lc-phrase { font-size: 12pt; }
+.lc-long .lc-noms { font-size: 10pt; }
+.lc-verso-corps { position: absolute; inset: 12mm 9mm; display: flex; flex-direction: column; justify-content: center; text-align: center; overflow: hidden; }
+.lc-verso-corps > * { flex: none; }
+.lc-verso .lp-p { font-size: 8.6pt; text-align: center; }
+.lc-verso .lp-p-ar { font-size: 10.5pt; }
+.lc-verso .lp-t-ar { font-size: 12.5pt; line-height: 1.9; }
+.lc-verso .lp-infos { margin: 2mm 0; text-align: center; border-inline-start: 0; }
+.lp-ar .lc-txt-cote { right: auto; left: 6%; }
+.lc-verso .lp-frise { left: 9mm; right: 9mm; top: 6mm; height: 2mm; }
+.lc-verso .lp-frise-bas { top: auto; bottom: 6mm; }
+.lc-verso .lp-basmala { font-size: 13pt; margin-bottom: 3mm; }
+.lc-verso .lp-signature { text-align: center; }
+.lc-verso.lc-long .lc-verso-corps { inset: 12mm 5mm; }
+.lc-verso.lc-long .lp-frise { left: 5mm; right: 5mm; }
+.lc-verso.lc-long .lp-t-ar { font-size: 12pt; }
+.lc-verso.lc-paysage .lc-verso-corps { inset: 11mm 14mm; }
+.lc-mention { margin-top: 4mm; font-size: 5.6pt; }
+.lc-mention[lang="ar"] { font-size: 7pt; }
+/* Menu (format long) */
+.lc-menu-haut { position: absolute; left: 0; right: 0; top: 52mm; text-align: center; }
+.lc-menu { position: absolute; left: 11mm; right: 11mm; top: 88mm; bottom: 8mm; text-align: center; overflow: hidden; }
+.lc-titre-grand { margin: 0; font: 400 17pt/1.2 var(--f-titre); color: var(--a); }
+.lc-titre-grand[lang="ar"] { font: 700 18pt/1.4 var(--f-arabe); }
+.lc-petit { margin: 1mm 0 0; font-size: 7.4pt; color: #46546A; }
+.lc-plats { margin: 4mm 0 2mm; text-align: center; }
+.lc-plats .lp-etape-t { justify-content: center; flex-direction: column; align-items: center; gap: 0; }
+.lc-plats .lp-etape { border-bottom: 0; padding: 1.6mm 0; }
+.lc-plats .lp-etape-d { margin: 0; }
+/* Certificat (A4 à l'italienne) */
+.lc-certif-arc { position: absolute; left: 16mm; width: 96mm; top: 128mm; text-align: center; }
+.lc-certif-arc .lc-phrase { font-size: 19pt; color: var(--t); }
+.lc-certif-arc:not(.lc-sombre) .lc-phrase { color: var(--a); }
+.lc-certif-txt { position: absolute; left: 126mm; right: 18mm; top: 18mm; bottom: 16mm; display: flex; flex-direction: column; justify-content: center; text-align: center; overflow: hidden; }
+.lc-certif-txt > * { flex: none; }
+.lp-ar .lc-certif-arc { left: auto; right: 16mm; }
+.lp-ar .lc-certif-txt { left: 18mm; right: 126mm; }
+.lc-certif .lc-titre-grand { font-size: 22pt; }
+.lc-certif .lc-noms { font-size: 26pt; color: var(--a); margin: 2mm 0 3mm; }
+.lc-certif .lp-p { text-align: center; font-size: 10.5pt; }
+.lc-verset { margin-top: 3mm; }
+.lc-verset .lp-t-ar { font-size: 13pt; }
+.lc-signatures { display: flex; gap: 14mm; margin-top: 8mm; }
+.lc-signatures > div { flex: 1; }
+.lc-signatures small { display: block; margin-top: 1.2mm; font-size: 7.6pt; color: #46546A; }
+.lc-signatures small [lang="ar"], .lp-ar .lc-signatures small { font: 400 9pt var(--f-arabe); }
+
 @page { size: 148mm 210mm; margin: 0; }
 @media print {
   body { background: #FFF; }
   body > *:not(main), .composer-guide, .apercu-barre, .langue-choix { display: none !important; }
   .composer, .composer-grille, .compo-apercu { padding: 0; margin: 0; width: auto; display: block; background: none; }
   .apercu-pages { display: block; }
-  .lp-cadre-ext, .lp-cadre-ext:first-child { width: 148mm; height: 210mm; margin: 0; box-shadow: none; break-after: page; page-break-after: always; }
+  .lp-cadre-ext, .lp-cadre-ext:first-child { width: var(--lw); height: var(--lh); margin: 0; box-shadow: none; break-after: page; page-break-after: always; border-radius: 0 !important; }
+  .scene-3d, .commande { display: none !important; }
   .lp-page { transform: none; }
 }
+
+/* =========================================================================
+   Feuilleter en 3D (livret3d.js) : les pages recopiées sur des feuilles en volume
+   ========================================================================= */
+.scene-3d { position: fixed; inset: 0; z-index: 90; display: grid; grid-template-rows: auto 1fr auto; color: #FFF;
+  background: radial-gradient(120% 90% at 50% 40%, #1B3F6E 0%, var(--nuit) 62%, #0A1B33 100%); }
+.scene-3d[hidden] { display: none; }
+html.s3d-ouvert, html.s3d-ouvert body { overflow: hidden; }
+.s3d-barre { display: flex; align-items: center; gap: 14px; padding: 14px 18px; }
+.s3d-titre { font-family: var(--f-titre); font-size: 1.15rem; }
+html[lang="ar"] .s3d-titre { font-family: var(--f-titre-ar); }
+.s3d-compte { margin-inline-start: auto; font-size: var(--corps-sm); color: var(--or-clair); }
+.s3d-fermer, .s3d-nav button { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid rgba(168, 220, 213, .45); border-radius: 50%;
+  background: rgba(255, 255, 255, .06); color: #FFF; font: 600 1.1rem var(--f-texte); cursor: pointer; }
+.s3d-fermer:hover, .s3d-nav button:hover:not(:disabled) { background: var(--or-clair); color: var(--nuit); }
+.s3d-nav button:disabled { opacity: .3; cursor: default; }
+.s3d-fermer:focus-visible, .s3d-nav button:focus-visible { outline: 2px solid var(--or-clair); outline-offset: 3px; }
+.s3d-plateau { position: relative; display: grid; place-items: center; min-height: 0; perspective: 2400px; perspective-origin: 50% 35%; touch-action: none; cursor: grab; user-select: none; }
+.s3d-plateau:active { cursor: grabbing; }
+/* Ombre portée sous le livret, derrière lui */
+.s3d-plateau { --pw: 300px; --ph: 425px; }
+.s3d-plateau::before { content: ""; position: absolute; z-index: 0; left: 50%; top: calc(50% + var(--ph) / 2 - 24px); width: calc(var(--pw) * 2.3); height: 64px;
+  transform: translateX(-50%); border-radius: 50%; background: radial-gradient(closest-side, rgba(0, 0, 0, .45), transparent); pointer-events: none; }
+.s3d-livre { --decalage: 0px; z-index: 1; position: relative; width: calc(var(--pw) * 2); height: var(--ph); transform-style: preserve-3d;
+  transition: transform .9s cubic-bezier(.3, .7, .2, 1); }
+.s3d-livre.s3d-carte { width: var(--pw); }
+.s3d-livre.s3d-libre { transition: none; }
+.s3d-feuille { position: absolute; top: 0; left: var(--pw); width: var(--pw); height: var(--ph); transform-style: preserve-3d; transform-origin: 0 50%;
+  transition: transform 1s cubic-bezier(.45, .05, .2, 1); }
+.s3d-rtl .s3d-feuille { left: 0; transform-origin: 100% 50%; }
+.s3d-carte .s3d-feuille { left: 0; transform-origin: 50% 50%; }
+.s3d-sans-anim, .s3d-sans-anim .s3d-feuille { transition: none; }
+.s3d-face { position: absolute; inset: 0; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; background: #FFF;
+  box-shadow: 0 0 0 .5px rgba(15, 39, 71, .25); }
+.s3d-verso { transform: rotateY(180deg); }
+.s3d-blanche { background: #F7FAF9; }
+/* Lumière : un peu d'ombre vers le dos du livret, plus marquée pendant que la page tourne */
+.s3d-face::after { content: ""; position: absolute; inset: 0; pointer-events: none; transition: opacity .6s; }
+.s3d-recto::after { background: linear-gradient(90deg, rgba(15, 39, 71, .22), rgba(15, 39, 71, 0) 9%); }
+.s3d-verso::after { background: linear-gradient(270deg, rgba(15, 39, 71, .22), rgba(15, 39, 71, 0) 9%); }
+.s3d-rtl .s3d-recto::after { background: linear-gradient(270deg, rgba(15, 39, 71, .22), rgba(15, 39, 71, 0) 9%); }
+.s3d-rtl .s3d-verso::after { background: linear-gradient(90deg, rgba(15, 39, 71, .22), rgba(15, 39, 71, 0) 9%); }
+.s3d-carte .s3d-face::after { background: linear-gradient(135deg, rgba(255, 255, 255, .12), rgba(15, 39, 71, .08)); }
+.s3d-en-vol .s3d-face::after { opacity: .55; }
+.s3d-nav { display: flex; align-items: center; justify-content: center; gap: 18px; padding: 12px 18px 22px; }
+.s3d-aide { margin: 0; max-width: 34ch; text-align: center; font-size: var(--corps-xs); color: rgba(255, 255, 255, .72); }
+@media (max-width: 520px) { .s3d-titre { display: none; } }
