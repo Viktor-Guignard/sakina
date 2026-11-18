@@ -700,6 +700,18 @@ def admin():
     page('admin.html', 'Sakîna · Administration', 'Administration des commandes.', corps, '', scripts, robots='noindex, nofollow')
 
 
+def plan_du_site():
+    """sitemap.xml et robots.txt. L'adresse vient de SAKINA_SITE (par défaut, l'adresse provisoire sur GitHub Pages).
+    Les pages privées (suivi, administration, brouillons) sont exclues ; le reste du site reste indexable comme avant."""
+    base = os.environ.get('SAKINA_SITE', 'https://viktor-guignard.github.io/sakina').rstrip('/')
+    prives = {'suivi.html', 'admin.html', 'relecture.html', 'mentions-legales.html', 'cgv.html', 'confidentialite.html'}
+    urls = sorted(p.relative_to(SITE).as_posix() for p in SITE.rglob('*.html') if p.name not in prives)
+    (SITE / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + ''.join(f'  <url><loc>{base}/{u}</loc></url>\n' for u in urls) + '</urlset>\n', encoding='utf-8')
+    (SITE / 'robots.txt').write_text('User-agent: *\n' + ''.join(f'Disallow: /{d}\n' for d in
+        ['admin.html', 'suivi.html', 'ar/suivi.html', 'relecture.html', 'api/']) + f'\nSitemap: {base}/sitemap.xml\n', encoding='utf-8')
+
+
 def relecture():
     """Dossier de relecture pour l'imam ou l'arabisant : tous les textes religieux et arabes, à imprimer."""
     case = '<td class="rl-case"><span></span></td><td class="rl-remarque"></td>'
@@ -913,4 +925,5 @@ if __name__ == '__main__':
                     + [f'ceremonie-{c["id"]}.html' for c in CEREMONIES])
     generer('fr')
     generer('ar')
+    plan_du_site()
     print('Pages générées :', len(list(SITE.glob('*.html'))), 'en français,', len(list((SITE / 'ar').glob('*.html'))), 'en arabe')

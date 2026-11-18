@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /admin.html
+Disallow: /suivi.html
+Disallow: /ar/suivi.html
+Disallow: /relecture.html
+Disallow: /api/
+
+Sitemap: https://viktor-guignard.github.io/sakina/sitemap.xml
