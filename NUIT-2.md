@@ -35,6 +35,10 @@ signaler « à relire ». Charte Iznik, arc brisé, aucune ressemblance avec liv
 - [ ] 16. Mise en ligne prête : _headers (sécurité, cache), page 404 FR/AR, redirections, build Cloudflare,
         script `npm run verifier` qui contrôle la configuration ; BACKEND.md réduit à « mettre les clés ».
 - [ ] 17. Pied de page et menus : liens vers FAQ, contact, pièces, pages légales (quand validées : laisser l'interrupteur).
+- [ ] 17b. Bascule vers Cloudflare (demandée par Viktor, à faire AVEC lui à la fin) : préparer le guide pas à pas
+        dans BACKEND.md (création du projet Pages relié à GitHub, base D1, secrets, domaine, Stripe, Brevo),
+        un workflow GitHub Actions de déploiement Cloudflare prêt mais inactif, et le plan pour arrêter ensuite
+        GitHub Pages (pages.yml) sans coupure. Ne rien basculer seul.
 - [ ] 18. Rapport de midi : ce qui a été fait, captures avant/après, ce qui attend Viktor (Stripe, courriels, juriste, imam, domaine).
 
 ## Journal
