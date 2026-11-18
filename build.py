@@ -19,6 +19,7 @@ from contenu import MARQUE, CEREMONIES, MOTIFS
 from contenu_ar import MARQUE_AR, CEREMONIES_AR, MOTIFS_AR
 from couvertures import couverture, etoile, arc_brise, motif
 from livrets import TEXTES, LIVRETS, TARIFS_VISTAPRINT, MARGE, TVA
+from legal import PAGES_LEGALES
 from modeles import MODELES, JUZ, OCCASIONS, TARIFS_PAPETERIE, QUANTITES_PAPETERIE
 
 # Service de commande (Cloudflare Pages Functions, dossier functions/). SAKINA_API vide = même site ;
@@ -699,6 +700,21 @@ def admin():
     page('admin.html', 'Sakîna · Administration', 'Administration des commandes.', corps, '', scripts, robots='noindex, nofollow')
 
 
+def pages_legales():
+    """Brouillons des pages légales (legal.py), français seulement, en attente de validation."""
+    for fichier, (titre, sections) in PAGES_LEGALES.items():
+        corps = ''.join(f'<h2>{escape(h)}</h2>' + ''.join(f'<p>{escape(p)}</p>' for p in ps) for h, ps in sections)
+        corps = f'''
+    <section class="section">
+      <div class="conteneur legal">
+        <p class="legal-brouillon">Brouillon à valider par un juriste : les passages entre crochets sont à compléter.</p>
+        <h1>{escape(titre)}</h1>
+        {corps}
+      </div>
+    </section>'''
+        page(fichier, f'Sakîna · {titre}', titre, corps, '', '', robots='noindex, nofollow')
+
+
 def charte():
     couleurs = [
         ('Bleu de nuit', '#0F2747', 'Fonds sombres, titres, pied de page.'),
@@ -838,6 +854,7 @@ def generer(langue):
     if langue == 'fr':
         charte()
         admin()
+        pages_legales()
 
 
 if __name__ == '__main__':

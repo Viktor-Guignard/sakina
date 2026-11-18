@@ -685,3 +685,9 @@ html[lang="ar"] .suivi-statut { font-family: var(--f-titre-ar); }
     -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .atelier .lp-page { top: 3mm; left: 3mm; }
 }
+
+/* Pages légales (brouillons) */
+.legal { max-width: 760px; }
+.legal h2 { margin-top: 32px; font-size: var(--corps-lg); }
+.legal p { color: var(--encre-douce); }
+.legal-brouillon { padding: 10px 14px; border-radius: 12px; background: #FCE3DE; color: var(--grenade); font-weight: 700; }
