@@ -622,7 +622,7 @@ def composer():
         </div>
         <div class="compo-apercu">
           <div class="apercu-barre"><span id="nb-pages"></span><span class="aide" id="nom-format">A5 · 148 × 210 mm</span>
-            <button type="button" class="btn-petit btn-3d" id="voir-3d" aria-controls="scene-3d">{t('Feuilleter en 3D', 'تصفّح ثلاثي الأبعاد')}</button></div>
+            <button type="button" class="btn-petit btn-3d" id="voir-3d" aria-haspopup="dialog">{t('Feuilleter en 3D', 'تصفّح ثلاثي الأبعاد')}</button></div>
           <div class="apercu-pages filigrane" id="apercu" aria-live="polite"></div>
         </div>
       </div>
