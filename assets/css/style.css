@@ -717,3 +717,8 @@ html[lang="ar"] .suivi-statut { font-family: var(--f-titre-ar); }
   .relecture .rl-table td:first-child { width: 62%; }
   .relecture .rl-remarque { width: 30%; }
 }
+@media (max-width: 560px) {
+  .s3d-nav { flex-wrap: wrap; gap: 10px 28px; padding-bottom: 16px; }
+  .s3d-aide { order: 3; flex-basis: 100%; max-width: none; }
+}
+.scene-3d, .s3d-plateau { overflow: hidden; }
