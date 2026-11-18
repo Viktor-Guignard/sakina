@@ -691,3 +691,29 @@ html[lang="ar"] .suivi-statut { font-family: var(--f-titre-ar); }
 .legal h2 { margin-top: 32px; font-size: var(--corps-lg); }
 .legal p { color: var(--encre-douce); }
 .legal-brouillon { padding: 10px 14px; border-radius: 12px; background: #FCE3DE; color: var(--grenade); font-weight: 700; }
+
+/* Dossier de relecture (imam) */
+.rl-table { width: 100%; border-collapse: collapse; margin: 12px 0 28px; font-size: var(--corps-sm); }
+.rl-table th { text-align: start; padding: 8px; border-bottom: 2px solid var(--nuit); }
+.rl-table td { vertical-align: top; padding: 10px 8px; border-bottom: 1px solid var(--filet); }
+.rl-table td p { margin: 0 0 6px; }
+.rl-ref { font-weight: 700; color: var(--or-fonce); }
+.rl-ref [lang="ar"] { font-family: var(--f-arabe); font-weight: 400; }
+.rl-ar { font: 400 1.35rem/2 var(--f-arabe); color: var(--nuit); }
+.rl-tr { font-style: italic; color: var(--encre-douce); }
+.rl-note { font-size: var(--corps-xs); color: var(--encre-douce); }
+.rl-case { width: 56px; text-align: center; }
+.rl-case span { display: inline-block; width: 18px; height: 18px; border: 1.5px solid var(--nuit); border-radius: 4px; }
+.rl-remarque { width: 32%; }
+.rl-juz { columns: 2; font-size: var(--corps-sm); }
+@media print { .relecture .rl-table tr { break-inside: avoid; } }
+@page relecture { size: A4; margin: 14mm; }
+@media print {
+  .relecture { max-width: none; width: auto; padding: 0; font-size: 9.5pt; page: relecture; }
+  main .section:has(.relecture) { padding: 0; }
+  .relecture .chapo { font-size: 10pt; }
+  .relecture .rl-table { font-size: 9pt; }
+  .relecture .rl-ar { font-size: 14pt; line-height: 1.8; }
+  .relecture .rl-table td:first-child { width: 62%; }
+  .relecture .rl-remarque { width: 30%; }
+}

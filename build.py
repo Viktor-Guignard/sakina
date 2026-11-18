@@ -700,6 +700,48 @@ def admin():
     page('admin.html', 'Sakîna · Administration', 'Administration des commandes.', corps, '', scripts, robots='noindex, nofollow')
 
 
+def relecture():
+    """Dossier de relecture pour l'imam ou l'arabisant : tous les textes religieux et arabes, à imprimer."""
+    case = '<td class="rl-case"><span></span></td><td class="rl-remarque"></td>'
+    lignes = []
+    for k, x in TEXTES.items():
+        variante = (f'<p class="rl-ar" lang="ar" dir="rtl">{escape(x["ar_f"])}</p><p class="rl-note">Au féminin : {escape(x["fr_f"])}</p>'
+                    if 'ar_f' in x else '')
+        lignes.append(f'''<tr><td><p class="rl-ref">{escape(x["ref_fr"])} · <span lang="ar">{escape(x["ref_ar"])}</span> · <small>{x["nature"]}</small></p>
+          <p class="rl-ar" lang="ar" dir="rtl">{escape(x["ar"])}</p><p class="rl-tr">{escape(x["tr"])}</p><p>{escape(x["fr"])}</p>{variante}</td>{case}</tr>''')
+    textes = ''.join(lignes)
+    mots = []
+    for c in CEREMONIES:
+        l = LIVRETS[c['id']]
+        mots.append((f"Livret · {c['nom']}", [(l['accueil_fr'], l['accueil_ar']), (l['fin_fr'], l['fin_ar'])] + ([('(féminin)', l['fin_ar_f'])] if 'fin_ar_f' in l else [])))
+    for k, m in MODELES.items():
+        paires = [m[x] for x in ('t', 'a', 'f') if m.get(x) and any(m[x])] + list((m.get('a_par') or {}).values())
+        paires += [(f[0] + ' — ' + f[1], a_[0] + ' — ' + a_[1]) for f, a_ in m.get('d', [])]
+        if m.get('libres'): paires.append((m['libres']['titre_fr'], m['libres']['titre_ar']))
+        if paires: mots.append((m['nom_fr'], paires))
+    mots.append(("Invitations · « … vous convier à »", list(OCCASIONS.values())))
+    mots = ''.join(f'<tr><td><p class="rl-ref">{escape(t_)}</p>' + ''.join(
+        f'<p>{escape(fr)}</p><p class="rl-ar" lang="ar" dir="rtl">{escape(ar)}</p>' for fr, ar in ps) + f'</td>{case}</tr>' for t_, ps in mots)
+    juz = ''.join(f'<li>Juz’ {i + 1} : {escape(fr)} ({escape(ar)}), verset {v}</li>' for i, (fr, ar, v) in enumerate(JUZ))
+    corps = f'''
+    <section class="section">
+      <div class="conteneur relecture">
+        <h1>Dossier de relecture</h1>
+        <p class="chapo">Tous les versets, invocations et textes arabes proposés par Sakîna. Pour chaque ligne : cochez
+        si c'est juste, sinon notez la correction. Vérifier : la vocalisation, la référence, la traduction, la translittération,
+        et que le texte convient à la cérémonie.</p>
+        <p class="aide">Imprimez cette page (A4) ou annotez-la à l'écran. Généré par build.py le {escape(__import__("datetime").date.today().strftime("%d/%m/%Y"))}.</p>
+        <h2>1. Versets et invocations ({len(TEXTES)})</h2>
+        <table class="rl-table"><thead><tr><th>Texte</th><th>Juste</th><th>Correction</th></tr></thead><tbody>{textes}</tbody></table>
+        <h2>2. Mots proposés dans chaque pièce (français et arabe)</h2>
+        <table class="rl-table"><thead><tr><th>Texte</th><th>Juste</th><th>Correction</th></tr></thead><tbody>{mots}</tbody></table>
+        <h2>3. Début des trente juz’ (livret des 30 nuits)</h2>
+        <ol class="rl-juz">{juz}</ol>
+      </div>
+    </section>'''
+    page('relecture.html', 'Sakîna · Dossier de relecture', 'Textes religieux à faire relire.', corps, '', '', robots='noindex, nofollow')
+
+
 def pages_legales():
     """Brouillons des pages légales (legal.py), français seulement, en attente de validation."""
     for fichier, (titre, sections) in PAGES_LEGALES.items():
@@ -855,6 +897,7 @@ def generer(langue):
         charte()
         admin()
         pages_legales()
+        relecture()
 
 
 if __name__ == '__main__':
