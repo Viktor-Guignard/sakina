@@ -12,7 +12,7 @@ En ligne : https://viktor-guignard.github.io/sakina/ (publié par `.github/workf
 
 Aperçu local : `python3 -m http.server 4181 --directory site`.
 
-À faire avant toute mise en ligne publique : faire relire les textes arabes, les versets et les invocations par un imam ou un arabisant ; choisir le nom et le domaine ; auto-héberger les polices (Google Fonts en prototype).
+À faire avant toute mise en ligne publique : faire relire les textes arabes, les versets et les invocations par un imam ou un arabisant ; choisir le nom et le domaine ; polices auto-hébergées depuis le 19/11/2026.
 
 ## Ajouts de novembre 2026
 

@@ -534,7 +534,7 @@ def composer():
             {contenu}
           </section>'''
     questions = ''.join([
-        q(0, t('Pour quelle occasion ?', 'لأيّ مناسبة؟'), t("Le déroulé, les versets et les mots d'accueil se préparent selon votre choix.", 'تُعَدّ المراحل والآيات وكلمات الترحيب بحسب اختياركم.'),
+        q(0, t('Pour quelle occasion ?', 'لأيّ مناسبة؟'), t("Le fil de la cérémonie, les versets et les mots d'accueil se préparent selon votre choix.", 'تُعَدّ المراحل والآيات وكلمات الترحيب بحسب اختياركم.'),
           '<div class="choix-occasions" id="f-ceremonie" role="radiogroup"></div>'),
         q(1, t('Quelle pièce ?', 'أيّ قطعة؟'), t('Un livret à feuilleter, ou de la papeterie assortie : tout se compose sous le même motif.', 'كتيّبٌ يُتصفَّح، أو أوراقٌ متناسقة: كلّها بالزخرفة نفسها.'),
           f'''<p class="pieces-titre">{t('Livrets A5', 'كتيّبات A5')}</p><div class="choix-pieces" id="f-pieces-livrets" role="radiogroup"></div>

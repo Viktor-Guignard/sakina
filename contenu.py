@@ -34,10 +34,10 @@ CEREMONIES = [
             ('Invocations pour les mariés', "« Que Dieu vous bénisse et répande sur vous Sa bénédiction, et qu'Il vous unisse dans le bien. »"),
             ('La walîma', "Le repas de noces, offert par les mariés et leurs familles."),
         ],
-        'produits': ['Livret de cérémonie (déroulé, versets, traductions)', 'Faire-part et invitations', 'Menu de la walîma',
+        'produits': ['Livret de cérémonie (le fil de la cérémonie, versets, traductions)', 'Faire-part et invitations', 'Menu de la walîma',
                      'Plan de table et signalétique', 'Cartes de remerciement'],
         'note': "En France, le mariage civil à la mairie doit précéder la cérémonie religieuse. Les usages varient "
-                "selon les écoles et les origines : nos modèles se composent librement, pour suivre le déroulé que vous "
+                "selon les écoles et les origines : nos modèles se composent librement, pour suivre le fil que vous "
                 "aurez convenu avec votre imam.",
         'citation': ('وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً',
                      "Et parmi Ses signes, Il a créé pour vous, de vous-mêmes, des épouses afin que vous trouviez auprès d'elles la tranquillité, et Il a mis entre vous affection et miséricorde.",
