@@ -53,7 +53,8 @@
         <dt>Livraison</dt><dd>${adresse}</dd>
         ${c.message ? `<dt>Message</dt><dd>${esc(c.message)}</dd>` : ''}
       </dl>
-      <p><a class="btn btn-contour" href="${lienComposer(c.etat)}" target="_blank" rel="noopener">Ouvrir la pièce dans le compositeur</a></p>
+      <p><a class="btn btn-contour" href="${lienComposer(c.etat)}" target="_blank" rel="noopener">Ouvrir la pièce</a>
+        <a class="btn btn-or" href="${lienComposer(c.etat).replace('composer.html', 'composer.html?atelier=1')}" target="_blank">Fichier pour l’imprimeur (sans filigrane)</a></p>
       <p class="aide">Vérifiez le nombre de pages dans le compositeur (déclaré : ${c.pages}). Pour l’épreuve, corrigez la pièce si besoin, copiez son lien de relecture et collez-le ci-dessous.</p>
       <div class="admin-form">
         <label class="champ"><span>Lien de l’épreuve (compositeur, #l=…)</span><input id="a-epreuve" dir="ltr"></label>

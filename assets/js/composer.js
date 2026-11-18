@@ -792,6 +792,14 @@
   // Un lien partagé (relecture) ouvre directement la dernière étape.
   if (location.hash.startsWith('#l=')) { vues = questions.length - 1; montrerQuestion(questions.length - 1, false); } else montrerQuestion(0, false);
 
+  // Atelier : le fichier pour l'imprimeur, sans filigrane. Réservé à l'administration (mot de passe
+  // vérifié par le serveur). Le filigrane décourage la copie ; il ne remplace pas ce contrôle.
+  if (params.get('atelier') && D.api != null) {
+    let j = null;
+    try { j = sessionStorage['sakina-admin']; } catch (e) { /* stockage indisponible */ }
+    if (j) fetch(D.api + '/api/admin/commandes?statut=annulee', { headers: { Authorization: 'Bearer ' + j } })
+      .then(r => { if (r.ok) apercu.classList.remove('filigrane'); }).catch(() => {});
+  }
   window.addEventListener('resize', ajusterZoom);
   remplir();
   composer();

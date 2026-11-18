@@ -74,6 +74,7 @@
     rtl = apercu.dir === 'rtl';
     livre.innerHTML = '';
     livre.classList.toggle('s3d-carte', !!info.carte);
+    livre.classList.toggle('filigrane', apercu.classList.contains('filigrane'));
     livre.classList.toggle('s3d-rtl', rtl && !info.carte);
     feuilles = [];
     const paires = [];
