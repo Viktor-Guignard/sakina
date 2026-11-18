@@ -70,10 +70,16 @@ for (const [nomEcran, ecran] of Object.entries(ecrans)) {
     await page.click('#voir-3d');
     await page.waitForTimeout(400);
     await page.click('.s3d-suiv');
-    await page.waitForTimeout(1100);
+    await page.waitForTimeout(2200);
     const t3d = await page.evaluate(() => { const l = document.querySelector('.s3d-livre').getBoundingClientRect();
       return { feuilles: document.querySelectorAll('.s3d-feuille').length, filigrane: document.querySelector('.s3d-livre').classList.contains('filigrane'),
-        dansEcran: l.left >= -2 && l.right <= window.innerWidth + 2, largeurPage: document.documentElement.scrollWidth - window.innerWidth }; });
+        etroit: document.querySelector('.s3d-livre').classList.contains('s3d-etroit'), compte: document.querySelector('.s3d-compte').textContent,
+        // Double page : tout le livret dans l'écran. Page seule (téléphone) : le livret dépasse, mais la page lue est centrée.
+        dansEcran: document.querySelector('.s3d-livre').classList.contains('s3d-etroit')
+          ? Math.abs((l.left + l.right) / 2 - window.innerWidth / 2) > l.width / 5
+          : l.left >= -2 && l.right <= window.innerWidth + 2,
+        largeurPage: document.documentElement.scrollWidth - window.innerWidth }; });
+    if (nomEcran === 'iphone' && !(t3d.etroit && /2/.test(t3d.compte.replace(/٢/, '2')) && !/–|-/.test(t3d.compte))) { ko++; echecs.push(`iphone · site ${site} · 3D page seule : ${JSON.stringify(t3d)}`); }
     if (process.env.CAPTURES && nomEcran === 'iphone') await page.screenshot({ path: join(process.env.CAPTURES, `iphone-${site}-3d.png`) });
     await page.keyboard.press('Escape');
     const ferme = await page.isHidden('#scene-3d');

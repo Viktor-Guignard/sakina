@@ -722,3 +722,7 @@ html[lang="ar"] .suivi-statut { font-family: var(--f-titre-ar); }
   .s3d-aide { order: 3; flex-basis: 100%; max-width: none; }
 }
 .scene-3d, .s3d-plateau { overflow: hidden; }
+/* Le livret est centré même quand il dépasse l'écran (téléphone : on n'en montre qu'une page) */
+.s3d-livre { position: absolute; left: 50%; top: 50%; margin: calc(var(--ph) / -2) 0 0 calc(var(--pw) * -1); }
+.s3d-livre.s3d-carte { margin-left: calc(var(--pw) / -2); }
+.s3d-plateau::before { top: calc(50% + var(--ph) / 2 - 24px); }

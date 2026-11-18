@@ -13,7 +13,7 @@ signaler « à relire ». Charte Iznik, arc brisé, aucune ressemblance avec liv
 
 ## Tâches (UX / UI d'abord)
 
-- [ ] 1. 3D sur téléphone : une page à la fois, en grand, glisser pour tourner.
+- [x] 1. 3D sur téléphone : une page à la fois, en grand, glisser pour tourner.
 - [ ] 2. « Quelle pièce ? » : une petite vignette de chaque pièce (livret, carte, menu, marque-page…).
 - [ ] 3. Commande : récapitulatif clair avant le paiement (pièce, pages, quantité, prix, étapes : épreuve → validation → impression).
 - [ ] 4. Accueil : une section qui montre la papeterie assortie (même motif sur livret, faire-part, menu, marque-page).
@@ -42,3 +42,5 @@ signaler « à relire ». Charte Iznik, arc brisé, aucune ressemblance avec liv
 - [ ] 18. Rapport de midi : ce qui a été fait, captures avant/après, ce qui attend Viktor (Stripe, courriels, juriste, imam, domaine).
 
 ## Journal
+
+- 00 h 11 · Tâche 1 faite : sur téléphone en portrait, la 3D montre une page à la fois, en grand et centrée ; glisser sur le côté tourne la page (sens arabe respecté), le compteur dit « Page 2 sur 8 ». Le livret est aussi centré quand il dépasse l'écran. Tests : 32 + 476 réussis.

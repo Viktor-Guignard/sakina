@@ -16,15 +16,19 @@
   const chiffres = x => AR ? String(x).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]) : String(x);
   const MM = 96 / 25.4;
   const TXT = AR
-    ? { titre: 'تصفّح القطعة', fermer: 'إغلاق', prec: 'الصفحة السابقة', suiv: 'الصفحة التالية', aide: 'اسحبوا لتدوير الكتيّب، والمسوا صفحةً لقلبها.',
-        couv: 'الغلاف', dos: 'الظهر', pages: (a, b, n) => `الصفحتان ${chiffres(a)}–${chiffres(b)} من ${chiffres(n)}`, recto: 'الوجه', verso: 'الظهر' }
-    : { titre: 'Feuilleter la pièce', fermer: 'Fermer', prec: 'Page précédente', suiv: 'Page suivante', aide: 'Glissez pour faire tourner le livret ; touchez une page pour la tourner.',
-        couv: 'Couverture', dos: 'Dos', pages: (a, b, n) => `Pages ${a}–${b} sur ${n}`, recto: 'Recto', verso: 'Verso' };
+    ? { titre: 'تصفّح القطعة', fermer: 'إغلاق', prec: 'الصفحة السابقة', suiv: 'الصفحة التالية', aide: 'اسحبوا لتدوير الكتيّب، والمسوا صفحةً لقلبها.', aideEtroit: 'اسحبوا الصفحة جانبًا لقلبها.',
+        couv: 'الغلاف', dos: 'الظهر', page: (a, n) => `الصفحة ${chiffres(a)} من ${chiffres(n)}`, pages: (a, b, n) => `الصفحتان ${chiffres(a)}–${chiffres(b)} من ${chiffres(n)}`, recto: 'الوجه', verso: 'الظهر' }
+    : { titre: 'Feuilleter la pièce', fermer: 'Fermer', prec: 'Page précédente', suiv: 'Page suivante', aide: 'Glissez pour faire tourner le livret ; touchez une page pour la tourner.', aideEtroit: 'Glissez la page sur le côté pour la tourner.',
+        couv: 'Couverture', dos: 'Dos', page: (a, n) => `Page ${a} sur ${n}`, pages: (a, b, n) => `Pages ${a}–${b} sur ${n}`, recto: 'Recto', verso: 'Verso' };
 
   let info = { carte: false, format: [148, 210] };
   document.addEventListener('sakina:compose', e => { info = e.detail; if (scene && !scene.hidden) construire(); });
 
   let scene, livre, plateau, feuilles = [], tournees = 0, rtl = false, inclinaison = { x: 16, y: 0 };
+  // Écran étroit (téléphone en portrait) : une page à la fois, en grand. « vue » compte les pages
+  // lues une à une : 0 = couverture, puis gauche et droite de chaque double page, enfin le dos.
+  let etroit = false, vue = 0;
+  const tourneesDe = v => Math.ceil(v / 2);
   const reduit = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   function creerScene() {
@@ -65,7 +69,15 @@
       }
     });
     gestes();
-    window.addEventListener('resize', () => { if (!scene.hidden) dimensionner(); });
+    // Le téléphone pivote : nouvelle taille, et passage de la page seule à la double page (ou l'inverse).
+    window.addEventListener('resize', () => {
+      if (scene.hidden) return;
+      const avant = etroit;
+      dimensionner();
+      if (avant && !etroit) vue = 0;
+      if (!avant && etroit) vue = Math.max(0, Math.min(2 * feuilles.length - 1, tournees * 2 - 1));
+      placer();
+    });
   }
 
   /** Recopie les pages de l'aperçu sur des feuilles (deux pages par feuille). */
@@ -105,13 +117,17 @@
     });
     tournees = Math.min(tournees, feuilles.length);
     dimensionner();
+    if (etroit) { vue = Math.min(vue, 2 * feuilles.length - 1); tournees = tourneesDe(vue); }
     placer();
   }
 
   /** Taille des pages : une double page doit tenir dans l'écran. */
   function dimensionner() {
     const [l, h] = info.format;
-    const largeurs = info.carte ? 1.15 : 2.1;
+    etroit = !info.carte && plateau.clientWidth < 700 && plateau.clientWidth < plateau.clientHeight * .95;
+    livre.classList.toggle('s3d-etroit', etroit);
+    scene.querySelector('.s3d-aide').textContent = etroit ? TXT.aideEtroit : TXT.aide;
+    const largeurs = info.carte ? 1.15 : etroit ? 1.06 : 2.1;
     const dispoL = plateau.clientWidth * .94, dispoH = plateau.clientHeight * .78;
     const k = Math.min(dispoL / (largeurs * l * MM), dispoH / (h * MM), 1.6);
     livre.style.setProperty('--k', k.toFixed(4));
@@ -135,15 +151,23 @@
     // Livret fermé : la couverture (ou le dos) au centre ; ouvert : le dos du livret au centre.
     const w = 'var(--pw)';
     let decalage = '0px';
-    if (!info.carte) {
+    if (etroit) {
+      // Une seule page au centre. Couverture : à droite (à gauche en arabe) ; dos : l'inverse ;
+      // dans une double page, d'abord la page de gauche puis celle de droite (l'inverse en arabe).
+      let droite;
+      if (vue === 0) droite = !rtl;
+      else if (vue === 2 * n - 1) droite = rtl;
+      else droite = vue % 2 === 1 ? rtl : !rtl;
+      decalage = `calc(${w} / ${droite ? -2 : 2})`;
+    } else if (!info.carte) {
       if (tournees === 0) decalage = `calc(${w} / ${rtl ? 2 : -2})`;
       else if (tournees === n) decalage = `calc(${w} / ${rtl ? -2 : 2})`;
     }
     livre.style.setProperty('--decalage', decalage);
     orienter();
     compter();
-    scene.querySelector('.s3d-prec').disabled = tournees === 0;
-    scene.querySelector('.s3d-suiv').disabled = tournees === n;
+    scene.querySelector('.s3d-prec').disabled = etroit ? vue === 0 : tournees === 0;
+    scene.querySelector('.s3d-suiv').disabled = etroit ? vue === 2 * n - 1 : tournees === n;
   }
 
   function orienter() {
@@ -154,6 +178,7 @@
     const n = feuilles.length, total = apercu.childElementCount;
     let t;
     if (info.carte) t = tournees ? TXT.verso : TXT.recto;
+    else if (etroit) t = vue === 0 ? TXT.couv : vue === 2 * n - 1 ? TXT.dos : TXT.page(vue + 1, total);
     else if (tournees === 0) t = TXT.couv;
     else if (tournees === n) t = TXT.dos;
     else t = TXT.pages(tournees * 2, tournees * 2 + 1, total);
@@ -162,7 +187,11 @@
 
   function tourner(d) {
     const avant = tournees;
-    tournees = Math.max(0, Math.min(feuilles.length, tournees + d));
+    if (etroit) {
+      vue = Math.max(0, Math.min(2 * feuilles.length - 1, vue + d));
+      tournees = tourneesDe(vue);
+      if (tournees === avant) return placer();   // même double page : on glisse seulement vers l'autre page
+    } else tournees = Math.max(0, Math.min(feuilles.length, tournees + d));
     if (tournees === avant) return;
     // La feuille qui tourne passe au-dessus des autres pendant son vol.
     const f = feuilles[d > 0 ? avant : tournees];
@@ -182,7 +211,7 @@
       const dx = e.clientX - depart.x, dy = e.clientY - depart.y;
       if (Math.hypot(dx, dy) > 6) depart.bouge = true;
       if (!depart.bouge) return;
-      inclinaison.y = Math.max(-50, Math.min(50, depart.iy + dx * .25));
+      if (!etroit) inclinaison.y = Math.max(-50, Math.min(50, depart.iy + dx * .25));
       inclinaison.x = Math.max(-10, Math.min(60, depart.ix - dy * .25));
       livre.classList.add('s3d-libre');
       orienter();
@@ -190,7 +219,10 @@
     const fin = e => {
       if (!depart) return;
       livre.classList.remove('s3d-libre');
-      if (!depart.bouge) {
+      const dx = e.clientX - depart.x, dy = e.clientY - depart.y;
+      // Téléphone : glisser à l'horizontale tourne la page (vers la gauche = page suivante, l'inverse en arabe).
+      if (etroit && depart.bouge && Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) tourner((dx < 0) !== rtl ? 1 : -1);
+      else if (!depart.bouge) {
         if (info.carte) tourner(tournees ? -1 : 1);
         else {
           const r = plateau.getBoundingClientRect();
@@ -211,7 +243,7 @@
     scene.hidden = false;
     document.documentElement.classList.add('s3d-ouvert');
     livre.classList.toggle('s3d-sans-anim', reduit.matches);
-    tournees = 0;
+    tournees = 0; vue = 0;
     inclinaison = { x: 16, y: reduit.matches ? 0 : -14 };
     construire();
     scene.querySelector('.s3d-fermer').focus();
