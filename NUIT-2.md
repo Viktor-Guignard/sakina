@@ -44,4 +44,4 @@ signaler « à relire ». Charte Iznik, arc brisé, aucune ressemblance avec liv
 ## Journal
 
 - 00 h 11 · Tâche 1 faite : sur téléphone en portrait, la 3D montre une page à la fois, en grand et centrée ; glisser sur le côté tourne la page (sens arabe respecté), le compteur dit « Page 2 sur 8 ». Le livret est aussi centré quand il dépasse l'écran. Tests : 32 + 476 réussis.
-- 00 h 40 · Tâche 2 faite : chaque pièce a sa vignette à l'échelle (livret, carte, menu, rond, marque-page, certificat), aux couleurs du motif choisi, redessinée quand le motif change. Tests : 32 + 476 réussis.
+- 00 h 21 · Tâche 2 faite : chaque pièce a sa vignette à l'échelle (livret, carte, menu, rond, marque-page, certificat), aux couleurs du motif choisi, redessinée quand le motif change. Tests : 32 + 476 réussis.
