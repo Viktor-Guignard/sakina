@@ -33,6 +33,7 @@ def version(chemin):
     return hashlib.sha256((RACINE / chemin).read_bytes()).hexdigest()[:10]
 
 
+# Polices : auto-hébergées (assets/css/polices.css, assets/fonts/), récupérées une fois depuis :
 POLICES = ('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans+Arabic:wght@400;500;600'
            '&family=Manrope:wght@400;500;600;700&family=Marcellus&family=Reem+Kufi:wght@400;600&display=swap')
 
@@ -157,9 +158,8 @@ def page(fichier, titre, description, corps, actif='', scripts='', robots=''):
   {f'<meta name="robots" content="{robots}">' if robots else ''}
   {alternates}
   <link rel="icon" href="{r}assets/img/favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="{POLICES}">
+  <link rel="preload" href="{r}assets/fonts/Amiri-400-arabic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{r}assets/css/polices.css?v={version('assets/css/polices.css')}">
   <link rel="stylesheet" href="{r}assets/css/style.css?v={version('assets/css/style.css')}">
 </head>
 <body>
@@ -846,6 +846,7 @@ if __name__ == '__main__':
     (SITE / 'ar').mkdir(parents=True)
     shutil.copytree(RACINE / 'assets' / 'css', SITE / 'assets' / 'css')
     shutil.copytree(RACINE / 'assets' / 'js', SITE / 'assets' / 'js')
+    shutil.copytree(RACINE / 'assets' / 'fonts', SITE / 'assets' / 'fonts')
     favicon()
     donnees_compositeur()
     PAGES_AR.update(['index.html', 'ceremonies.html', 'motifs.html', 'respect.html', 'composer.html', 'suivi.html']
