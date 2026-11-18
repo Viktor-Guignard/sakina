@@ -145,10 +145,27 @@
         <span class="occasion-nom">${esc(D.ceremonies[id][SITE === 'ar' ? 'nom_ar' : 'nom_fr'])}</span></label>`).join('');
   }
 
+  /** Vignette d'une pièce : sa forme à l'échelle (livret, carte, menu, rond, marque-page), aux couleurs du motif choisi. */
+  function vignette(k) {
+    const M = D.modeles[k], g = D.motifs[etat.m] || D.motifs[D.ceremonies[etat.c].motif];
+    const [l, h] = M.format, e = 40 / Math.max(l, h), w = l * e, H = h * e, x = (48 - w) / 2, y = (44 - H) / 2;
+    const fond = M.famille === 'carte' && k === 'certificat' ? '#FFFFFF' : g.fond;
+    let forme;
+    if (M.rond) forme = `<circle cx="24" cy="22" r="${w / 2}" fill="${g.fond}" stroke="${g.trait}" stroke-width=".8"/><circle cx="24" cy="22" r="${w / 2 - 3}" fill="none" stroke="${g.trait}" stroke-width=".4"/>`;
+    else {
+      const ax = k === 'certificat' ? x + 3 : x + w * .16, aw = k === 'certificat' ? w * .34 : w * .68, ah = k === 'menu' ? H * .42 : H * .78;
+      forme = (M.famille === 'livret' ? `<rect x="${x + 2.4}" y="${y + 1.6}" width="${w}" height="${H}" rx="1" fill="#FFFFFF" stroke="${g.trait}" stroke-width=".4" opacity=".8"/>` : '')
+        + `<rect x="${x}" y="${y}" width="${w}" height="${H}" rx="1" fill="${fond}" stroke="${g.trait}" stroke-width=".5"/>`
+        + `<path d="${arcBrise(ax, y + H * .1, aw, ah)}" fill="${k === 'certificat' ? g.fond : 'none'}" stroke="${g.trait}" stroke-width=".7"/>`
+        + (k === 'menu' || k === 'certificat' ? [0, 1, 2].map(i => `<line x1="${k === 'certificat' ? x + w * .5 : x + w * .25}" x2="${x + w * .85}" y1="${y + H * (k === 'menu' ? .62 : .35) + i * 3.4}" y2="${y + H * (k === 'menu' ? .62 : .35) + i * 3.4}" stroke="${g.trait}" stroke-width=".5" opacity=".7"/>`).join('') : '');
+    }
+    return `<svg class="piece-vignette" viewBox="0 0 48 44" aria-hidden="true">${forme}</svg>`;
+  }
+
   function dessinerPieces() {
     const M = k => D.modeles[k], ar = SITE === 'ar';
     const html = fam => piecesDe(etat.c).filter(k => M(k).famille === fam).map(k => `
-      <label class="piece"><input type="radio" name="p" value="${k}"${k === etat.p ? ' checked' : ''}>
+      <label class="piece"><input type="radio" name="p" value="${k}"${k === etat.p ? ' checked' : ''}>${vignette(k)}
         <span class="piece-nom">${esc(ar ? M(k).nom_ar : M(k).nom_fr)}</span>
         <span class="piece-court">${esc(ar ? M(k).court_ar : M(k).court_fr)}</span></label>`).join('');
     document.getElementById('f-pieces-livrets').innerHTML = html('livret');
@@ -653,7 +670,7 @@
     if (el.name === 'p') { etat = defaut(etat.c, { ...etat, p: el.value }); return changer({ redessiner: true }); }
     if (el.name === 'libres') { etat.libres = +el.value; return changer(); }
     if (el.closest('.commande')) return;
-    if (el.name === 'm') { etat.m = el.value; return changer(); }
+    if (el.name === 'm') { etat.m = el.value; dessinerPieces(); return changer(); }
     if (el.name === 'quantite') { etat.quantite = +el.value; afficherPrix(); return garder(etat); }
     if (el.name === 'langue') {
       const C = D.ceremonies[etat.c], avant = etat.langue;
