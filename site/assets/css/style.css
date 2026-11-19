@@ -787,3 +787,14 @@ html[lang="ar"] .lecture-titre { font-family: var(--f-titre-ar) !important; }
   .mode-lecture .vers-apercu { display: none; }
 }
 @media print { .vers-apercu { display: none !important; } }
+
+/* Pages des pièces (référencement) */
+.piece-page { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 48px; align-items: center; margin-top: 18px; }
+.piece-page-visuel { justify-self: center; }
+.piece-page-visuel .famille-visuel { width: min(calc(var(--l) * 2px), 300px); }
+.piece-page h1 { margin-top: 0; }
+.piece-page-format { color: var(--encre-douce); font-size: var(--corps-sm); }
+.piece-page-liens { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--filet); }
+.piece-page-liens h2 { font-size: var(--corps-lg); }
+.piece-page-liens ul { margin: 0; padding-inline-start: 18px; line-height: 1.9; }
+@media (max-width: 760px) { .piece-page, .piece-page-liens { grid-template-columns: 1fr; gap: 24px; } .piece-page-visuel .famille-visuel { width: min(calc(var(--l) * 1.4px), 220px); } }

@@ -20,6 +20,7 @@ from contenu_ar import MARQUE_AR, CEREMONIES_AR, MOTIFS_AR
 from couvertures import couverture, etoile, arc_brise, motif, piece
 from livrets import TEXTES, LIVRETS, TARIFS_VISTAPRINT, MARGE, TVA
 from legal import PAGES_LEGALES, PAGES_LEGALES_AR
+from pieces import PIECES
 from modeles import MODELES, JUZ, OCCASIONS, TARIFS_PAPETERIE, QUANTITES_PAPETERIE
 
 # Service de commande (Cloudflare Pages Functions, dossier functions/). SAKINA_API vide = même site ;
@@ -126,7 +127,7 @@ SCRIPT_COMMUN = '''
 
 def page(fichier, titre, description, corps, actif='', scripts='', robots='', jsonld=None):
     r = racine()
-    nav = [('ceremonies.html', t("Le fil d'une vie", 'مسيرة العمر')), ('motifs.html', t('Motifs', 'الزخارف')),
+    nav = [('ceremonies.html', t("Le fil d'une vie", 'مسيرة العمر')), ('papeterie.html', t('Papeterie', 'الأوراق')), ('motifs.html', t('Motifs', 'الزخارف')),
            ('respect.html', t('Notre éthique', 'ميثاقنا'))]
     courant = ' aria-current="page"'
     liens = ''.join(f'<a href="{h}"{courant if h == actif else ""}>{tx}</a>' for h, tx in nav)
@@ -359,6 +360,7 @@ def accueil():
                               'الكتيّب، وبطاقة الإعلان، وقائمة الطعام، وفاصل الكتاب، وملصق الحلوى: صمّموها معًا لتتناغم.')}</p>
         </div>
         {famille_papeterie()}
+        <p style="margin-top:24px;text-align:center"><a href="papeterie.html">{t('Toutes les pièces', 'كلّ القطع')} {t('→', '←')}</a></p>
       </div>
     </section>
 
@@ -813,6 +815,80 @@ def entetes():
 """, encoding='utf-8')
 
 
+def visuel_piece(k):
+    """Image d'une pièce pour sa page : couverture (livrets) ou carte, sous son motif conseillé."""
+    m = MODELES[k]
+    c = m['ceremonies'][0]
+    cle = next((x for x in [LIVRETS[c]['motif']] if x in MOTIFS), 'alhambra')
+    mo = MOTIFS[cle]
+    noms = LIVRETS[c]['noms'] if L == 'fr' else LIVRETS[c]['noms_ar']
+    if m['famille'] == 'livret' or k == 'certificat':
+        titre = (m.get('t') or (LIVRETS[c]['titre_fr'], LIVRETS[c]['titre_ar']))[1 if L == 'ar' else 0]
+        return couverture(f'{cle}-{k}', dict(mo, titre=titre, noms=noms, phrase=LIVRETS[c]['phrase'])), 148, 210
+    sorte = k if k in ('menu', 'marque_page', 'etiquette') else 'faire_part'
+    l, h = {'faire_part': (105, 148), 'menu': (99, 210), 'marque_page': (50, 150), 'etiquette': (50, 50)}[sorte]
+    return piece(sorte, cle, mo, LIVRETS[c]['phrase'], noms, chiffres('14 . 06 . 2027')), l, h
+
+
+def pages_pieces():
+    """Une page par pièce (pieces.py) et la page qui les rassemble (papeterie.html), en français et en arabe."""
+    i = 1 if L == 'ar' else 0
+    nom_p = lambda k: MODELES[k]['nom_ar'] if L == 'ar' else MODELES[k]['nom_fr']
+    for k, P in PIECES.items():
+        svg, l, h = visuel_piece(k)
+        cer = ''.join(f'<li><a href="composer.html?c={c}&amp;p={k}">{escape(cv(PAR_ID[c], "nom"))}</a></li>' for c in MODELES[k]['ceremonies'])
+        autres = ''.join(f'<li><a href="{PIECES[x]["page"]}">{escape(nom_p(x))}</a></li>' for x in PIECES if x != k and
+                         MODELES[x]['famille'] == MODELES[k]['famille'])
+        corps = f'''
+    <section class="section">
+      <div class="conteneur">
+        {fil(f'<a href="index.html">{t("Accueil", "الرئيسية")}</a>', f'<a href="papeterie.html">{t("Livrets et papeterie", "الكتيّبات والأوراق")}</a>', escape(P['h1'][i]))}
+        <div class="piece-page">
+          <div class="piece-page-visuel famille-piece{" famille-rond" if k == "etiquette" else ""}" style="--l:{l};--h:{h}"><span class="famille-visuel">{svg}</span></div>
+          <div>
+            <h1>{escape(P['h1'][i])}</h1>
+            {''.join(f'<p class="chapo">{escape(x)}</p>' if n == 0 else f'<p>{escape(x)}</p>' for n, x in enumerate(P['texte'][i]))}
+            <ul class="liste-points">{''.join(f'<li><span>{escape(x)}</span></li>' for x in P['points'][i])}</ul>
+            <p class="piece-page-format">{escape(MODELES[k]['court_ar'] if L == 'ar' else MODELES[k]['court_fr'])}</p>
+            <a class="btn btn-or" href="composer.html?c={MODELES[k]['ceremonies'][0]}&amp;p={k}">{t('Composer', 'صمّموا')} : {escape(nom_p(k))}</a>
+          </div>
+        </div>
+        <div class="piece-page-liens">
+          <div><h2>{t('Pour quelle cérémonie ?', 'لأيّ مناسبة؟')}</h2><ul>{cer}</ul></div>
+          <div><h2>{t('À composer aussi', 'تُصمَّم أيضًا')}</h2><ul>{autres}</ul></div>
+        </div>
+      </div>
+    </section>'''
+        page(P['page'], t(f'{P["titre"][0]} · Sakîna', f'{P["titre"][1]} · سكينة'), P['desc'][i], corps, 'papeterie.html',
+             jsonld=[fil_ariane([(t('Accueil', 'الرئيسية'), ''), (t('Livrets et papeterie', 'الكتيّبات والأوراق'), 'papeterie.html'), (P['h1'][i], P['page'])])])
+    # La page qui rassemble toutes les pièces
+    def tuile(k):
+        svg, l, h = visuel_piece(k)
+        return (f'<a class="famille-piece{" famille-rond" if k == "etiquette" else ""}" href="{PIECES[k]["page"]}" style="--l:{l};--h:{h}">'
+                f'<span class="famille-visuel">{svg}</span><span class="famille-nom">{escape(nom_p(k))}</span></a>')
+    livrets = ''.join(tuile(k) for k in PIECES if MODELES[k]['famille'] == 'livret')
+    cartes = ''.join(tuile(k) for k in PIECES if MODELES[k]['famille'] == 'carte')
+    corps = f'''
+    <section class="section">
+      <div class="conteneur">
+        {fil(f'<a href="index.html">{t("Accueil", "الرئيسية")}</a>', t('Livrets et papeterie', 'الكتيّبات والأوراق'))}
+        <div class="entete-section">
+          <h1>{t('Livrets et papeterie', 'الكتيّبات والأوراق')}</h1>
+          <p class="chapo">{t("Six livrets A5 et sept pièces de papeterie, à composer en ligne sous le même motif, en français, en arabe ou dans les deux langues.",
+                              'ستّة كتيّبات بمقاس A5 وسبع قطعٍ من الأوراق، تُصمَّم عبر الإنترنت بالزخرفة نفسها، بالعربية أو بالفرنسية أو بهما.')}</p>
+        </div>
+        <h2>{t('Les livrets', 'الكتيّبات')}</h2>
+        <div class="famille famille-compacte">{livrets}</div>
+        <h2 style="margin-top:40px">{t('La papeterie', 'الأوراق')}</h2>
+        <div class="famille famille-compacte">{cartes}</div>
+      </div>
+    </section>'''
+    page('papeterie.html', t('Livrets et papeterie des cérémonies musulmanes · Sakîna', 'كتيّبات وأوراق المناسبات الإسلامية · سكينة'),
+         t("Livret de cérémonie, carnet du pèlerin, carnet de Ramadan, faire-part, invitations, menus, étiquettes, marque-pages et certificat de khatm : toute la papeterie Sakîna.",
+           'كتيّب المناسبة، ودفتر الحاجّ، ودفتر رمضان، وبطاقات الإعلان والدعوة، وقوائم الطعام، والملصقات، وفواصل الكتب، وشهادة الختم: كلّ أوراق سكينة.'),
+         corps, 'papeterie.html', jsonld=[fil_ariane([(t('Accueil', 'الرئيسية'), ''), (t('Livrets et papeterie', 'الكتيّبات والأوراق'), 'papeterie.html')])])
+
+
 def plan_du_site():
     """sitemap.xml et robots.txt. L'adresse vient de SAKINA_SITE (par défaut, l'adresse provisoire sur GitHub Pages).
     Les pages privées (suivi, administration, brouillons) sont exclues ; le reste du site reste indexable comme avant."""
@@ -1020,6 +1096,7 @@ def generer(langue):
     composer()
     suivi()
     pages_legales()
+    pages_pieces()
     if langue == 'fr':
         charte()
         admin()
@@ -1037,7 +1114,7 @@ if __name__ == '__main__':
     favicon()
     donnees_compositeur()
     PAGES_AR.update(['index.html', 'ceremonies.html', 'motifs.html', 'respect.html', 'composer.html', 'suivi.html',
-                     'mentions-legales.html', 'cgv.html', 'confidentialite.html']
+                     'mentions-legales.html', 'cgv.html', 'confidentialite.html', 'papeterie.html'] + [P['page'] for P in PIECES.values()]
                     + [f'ceremonie-{c["id"]}.html' for c in CEREMONIES])
     generer('fr')
     generer('ar')
