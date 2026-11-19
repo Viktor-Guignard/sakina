@@ -224,6 +224,26 @@ try {
   verifier(await client.evaluate(() => document.getElementById('apercu').classList.contains('filigrane')), 'sans le mot de passe, ?atelier=1 garde le filigrane');
   await client.close();
 
+  // L'administration sur téléphone (Viktor travaille souvent depuis son téléphone).
+  {
+    const { devices } = createRequire(import.meta.url)('playwright');
+    const tel = await navigateur.newContext(devices['iPhone 13']);
+    await tel.addInitScript(j => { sessionStorage['sakina-admin'] = j; localStorage['sakina-langue'] = 'fr'; }, ADMIN);
+    const pt = await tel.newPage();
+    await pt.goto(`${BASE}/admin.html#${id}`);
+    await pt.waitForSelector('#admin-detail h2');
+    await pt.waitForTimeout(600);
+    const mesure = await pt.evaluate(() => ({ cote: document.documentElement.scrollWidth - innerWidth,
+      boutons: [...document.querySelectorAll('#admin-detail .admin-actions button')].every(b => b.getBoundingClientRect().height >= 40),
+      detailVisible: (() => { const r = document.getElementById('admin-detail').getBoundingClientRect(); return r.top < innerHeight && r.top > -40; })() }));
+    verifier(mesure.cote <= 1 && mesure.boutons && mesure.detailVisible, `administration utilisable sur téléphone (${JSON.stringify(mesure)})`);
+    if (process.env.CAPTURES) {
+      await pt.screenshot({ path: join(process.env.CAPTURES, 'admin-iphone-haut.png') });
+      await pt.locator('#admin-detail').screenshot({ path: join(process.env.CAPTURES, 'admin-iphone-detail.png') });
+    }
+    await tel.close();
+  }
+
   verifier(erreursPage.length === 0, 'aucune erreur JavaScript dans les pages' + (erreursPage.length ? ' : ' + erreursPage.join(' | ') : ''));
   await navigateur.close();
 } catch (e) {

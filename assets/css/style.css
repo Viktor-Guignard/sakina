@@ -843,3 +843,6 @@ html[lang="ar"] .lecture-titre { font-family: var(--f-titre-ar) !important; }
 @media (max-width: 520px) { .pied-grille > div:nth-child(3) h4 { display: none; } .pied-grille > div:nth-child(3) ul { margin-top: -18px; } }
 
 .liste-pieces .lien-composer { margin-inline-start: 6px; font-size: var(--corps-xs); font-weight: 600; white-space: nowrap; }
+
+.admin-retour { display: none; }
+@media (max-width: 860px) { .admin-retour { display: inline-block; margin-bottom: 6px; } .admin-detail { scroll-margin-top: 84px; } #admin-filtres { scroll-margin-top: 84px; } }

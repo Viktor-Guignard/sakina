@@ -46,6 +46,7 @@
     const a = c.adresse && c.adresse.livraison;
     const adresse = a ? [a.name, a.address?.line1, a.address?.line2, `${a.address?.postal_code || ''} ${a.address?.city || ''}`, a.address?.country].filter(Boolean).map(esc).join('<br>') : '—';
     $('admin-detail').innerHTML = `
+      <button type="button" class="btn-petit admin-retour" data-retour="1">← Toutes les commandes</button>
       <h2>${c.id} <span class="admin-badge admin-${c.statut}">${esc(statuts[c.statut].fr)}</span></h2>
       <dl class="admin-dl">
         <dt>Client</dt><dd>${esc(c.nom)} · <a href="mailto:${esc(c.email)}">${esc(c.email)}</a>${c.telephone ? ' · ' + esc(c.telephone) : ''}</dd>
@@ -71,9 +72,16 @@
       </div>
       <h3>Historique</h3>
       <ol class="admin-histo">${c.historique.map(e => `<li><small>${date(e.date)}</small> ${esc(e.type)}${e.detail ? ` <code>${esc(e.detail)}</code>` : ''}</li>`).join('')}</ol>`;
-    liste();
+    await liste();
+    // Téléphone : la liste et le détail sont l'un sous l'autre ; on amène le détail à l'écran
+    // (après la mise à jour de la liste, qui change la hauteur au-dessus).
+    if (window.matchMedia('(max-width: 860px)').matches) requestAnimationFrame(() => $('admin-detail').scrollIntoView({ block: 'start' }));
   }
 
+  $('admin-detail').addEventListener('click', e => {
+    if (!e.target.closest('[data-retour]')) return;
+    $('admin-filtres').scrollIntoView({ block: 'start' });
+  });
   $('admin-detail').addEventListener('click', async e => {
     const b = e.target.closest('button[data-statut]');
     if (!b) return;
