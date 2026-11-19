@@ -27,6 +27,9 @@ for (const u of [...pages, ...pages.map(p => 'ar/' + p)]) {
   await p.addScriptTag({ content: axe });
   const v = await p.evaluate(async () => (await axe.run(document, { runOnly: ['wcag2a', 'wcag2aa'] })).violations
     .map(x => `${x.id} (${x.impact}) ×${x.nodes.length} : ${x.nodes.slice(0, 2).map(n => n.target.join(' ')).join(' | ')}`));
+  // Aucune page ne doit défiler de côté (piège classique du site arabe, de droite à gauche).
+  const cote = await p.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+  if (cote > 1) v.push(`la page défile de côté sur ${cote} px`);
   if (v.length) { ko++; console.log('  ✗', u, '\n     ' + v.join('\n     ')); }
   await p.close();
 }
