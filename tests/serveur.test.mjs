@@ -147,6 +147,15 @@ try {
   verifier((await post({ ...base, quantite: 33 })).status === 400, 'quantité non proposée refusée');
   verifier((await post({ ...base, etat: { c: 'janaza', p: 'menu' } })).status === 400, 'pièce hors cérémonie refusée');
   verifier((await post({ ...base, contact: { nom: 'A', email: 'pas-un-email' } })).status === 400, 'e-mail invalide refusé');
+  verifier((await post({ ...base, etat: { c: 'nikah', p: 'faire_part' }, pages: 2, contact: { nom: 'Gagnez https://arnaque.example', email: 'victime@example.org' } })).status === 400,
+    'un nom contenant un lien est refusé (le service n’écrit pas de liens à des inconnus)');
+  for (let i = 0; i < 5; i++) await post({ ...base, etat: { c: 'nikah', p: 'faire_part' }, pages: 2, contact: { nom: 'Répété', email: 'repete@example.org' } });
+  verifier((await post({ ...base, etat: { c: 'nikah', p: 'faire_part' }, pages: 2, contact: { nom: 'Répété', email: 'repete@example.org' } })).status === 400,
+    'au plus 5 demandes par jour pour une même adresse');
+  const bizarre = await (await post({ ...base, etat: { c: 'nikah', p: 'faire_part', m: '<script>', textes: ['rum21', 'inconnu'], noms: 'x'.repeat(5000), pirate: 1 }, pages: 2,
+    contact: { nom: 'Propre', email: 'propre@example.org' } })).json();
+  const enBase = (await (await admin(`commandes/${bizarre.id}`)).json()).etat;
+  verifier(enBase.m === 'alhambra' && enBase.textes.join() === 'rum21' && enBase.noms.length === 120 && !('pirate' in enBase), 'la pièce reçue est nettoyée avant d’être enregistrée');
   const pieges = sessions.length;
   verifier((await post({ ...base, site_web: 'http://spam' })).ok && sessions.length === pieges, 'robot piégé sans commande');
 

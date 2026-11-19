@@ -2,6 +2,7 @@
 // Stripe (ou, pour une pièce sur devis, celle de la page de suivi).
 import { json, erreur, identifiant, jeton, sha256, lireJson, texte, emailValide, maintenant, journal, site } from '../../_lib/outils.js';
 import { chiffrer } from '../../_lib/prix.js';
+import { nettoyer, nomAcceptable } from '../../_lib/etat.js';
 import { ouvrirPaiement, resume } from '../../_lib/paiement.js';
 import { envoyer, ecrireAuClient } from '../../_lib/courriel.js';
 
@@ -14,11 +15,12 @@ export async function onRequestPost({ request, env }) {
   const E = (fr, a) => erreur(ar ? a : fr);
 
   if (texte(corps.site_web, 200)) return json({ url: '/' });   // piège à robots : on ne dit rien
-  const etat = corps.etat;
-  if (!etat || typeof etat !== 'object') return E('La pièce est vide.', 'القطعة فارغة.');
+  const etat = nettoyer(corps.etat);
+  if (!etat) return E('La pièce est vide.', 'القطعة فارغة.');
   const contact = corps.contact || {};
   const nom = texte(contact.nom, 80), email = texte(contact.email, 120).toLowerCase();
   if (!nom) return E('Indiquez votre nom.', 'اكتبوا اسمكم.');
+  if (!nomAcceptable(nom)) return E('Indiquez seulement votre nom, sans lien.', 'اكتبوا اسمكم فقط، دون رابط.');
   if (!emailValide(email)) return E('Cette adresse e-mail ne semble pas valide.', 'عنوان البريد غير صالح.');
 
   const produit = String(etat.p || 'livret'), ceremonie = String(etat.c || '');
@@ -33,6 +35,10 @@ export async function onRequestPost({ request, env }) {
     const { n } = await env.DB.prepare('SELECT COUNT(*) AS n FROM commandes WHERE ip_empreinte = ? AND cree_le > ?').bind(empreinte, depuis).first();
     if (n >= MAX_PAR_HEURE) return E('Trop de demandes : réessayez dans une heure.', 'طلباتٌ كثيرة: أعيدوا المحاولة بعد ساعة.');
   }
+  // Une même adresse ne reçoit pas plus de 5 demandes par jour (le service lui écrit) : pas de relais de courriels.
+  const { n: parAdresse } = await env.DB.prepare('SELECT COUNT(*) AS n FROM commandes WHERE email = ? AND cree_le > ?')
+    .bind(email, new Date(Date.now() - 86400_000).toISOString()).first();
+  if (parAdresse >= 5) return E('Plusieurs demandes sont déjà en cours pour cette adresse : écrivez-nous plutôt.', 'لهذا العنوان طلباتٌ جارية: راسلونا بدلًا من ذلك.');
 
   const id = identifiant(), secret = jeton(), date = maintenant();
   const livraison = prix.montant != null && env.LIVRAISON_CENTIMES ? Number(env.LIVRAISON_CENTIMES) : null;

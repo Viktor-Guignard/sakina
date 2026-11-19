@@ -2,6 +2,7 @@
 // par courriel quand Brevo est branché (sinon visible seulement dans admin.html).
 import { json, erreur, lireJson, texte, emailValide, maintenant, sha256, site } from '../_lib/outils.js';
 import { envoyer } from '../_lib/courriel.js';
+import { nomAcceptable } from '../_lib/etat.js';
 
 const SUJETS = ['question', 'devis', 'commande', 'janaza', 'autre'];
 
@@ -13,7 +14,7 @@ export async function onRequestPost({ request, env }) {
   if (texte(c.site_web, 200)) return json({ ok: true });   // piège à robots
   const nom = texte(c.nom, 80), email = texte(c.email, 120).toLowerCase(), message = texte(c.message, 3000);
   const sujet = SUJETS.includes(c.sujet) ? c.sujet : 'autre';
-  if (!nom) return E('Indiquez votre nom.', 'اكتبوا اسمكم.');
+  if (!nom || !nomAcceptable(nom)) return E('Indiquez votre nom, sans lien.', 'اكتبوا اسمكم، دون رابط.');
   if (!emailValide(email)) return E('Cette adresse e-mail ne semble pas valide.', 'عنوان البريد غير صالح.');
   if (message.length < 5) return E('Écrivez votre message.', 'اكتبوا رسالتكم.');
   const ip = request.headers.get('CF-Connecting-IP') || '';

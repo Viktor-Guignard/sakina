@@ -606,7 +606,7 @@ def donnees_compositeur():
         encoding='utf-8')
     # Le serveur recalcule les prix et vérifie les pièces avec les mêmes données.
     serveur = {'tarifs': TARIFS_VISTAPRINT, 'tarifs_papeterie': TARIFS_PAPETERIE, 'quantites_papeterie': QUANTITES_PAPETERIE,
-               'marge': MARGE, 'tva': TVA, 'ceremonies': {c['id']: {'fr': c['nom'], 'ar': CEREMONIES_AR[c['id']]['nom']} for c in CEREMONIES},
+               'marge': MARGE, 'tva': TVA, 'textes': sorted(TEXTES), 'motifs': sorted(MOTIFS), 'ceremonies': {c['id']: {'fr': c['nom'], 'ar': CEREMONIES_AR[c['id']]['nom']} for c in CEREMONIES},
                'modeles': {k: {'famille': m['famille'], 'ceremonies': m['ceremonies'], 'faces': m.get('faces'), 'fr': m['nom_fr'], 'ar': m['nom_ar'],
                                'format': m['format']} for k, m in MODELES.items()}}
     (RACINE / 'functions' / '_lib').mkdir(parents=True, exist_ok=True)

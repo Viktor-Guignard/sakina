@@ -4,6 +4,7 @@
 import { json, erreur, lireJson, texte, maintenant, journal, site } from '../../../_lib/outils.js';
 import { STATUTS, SUITES_ADMIN } from '../../../_lib/statuts.js';
 import { ecrireAuClient } from '../../../_lib/courriel.js';
+import { nettoyer } from '../../../_lib/etat.js';
 
 export async function onRequestGet({ env, params }) {
   const c = await env.DB.prepare('SELECT * FROM commandes WHERE id = ?').bind(String(params.id)).first();
@@ -28,7 +29,7 @@ export async function onRequestPatch({ request, env, params }) {
   if (typeof corps.lien_epreuve === 'string' && corps.lien_epreuve.includes('#l=')) {
     try {
       const b64 = corps.lien_epreuve.split('#l=')[1].replace(/-/g, '+').replace(/_/g, '/');
-      const etat = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(b64), ch => ch.charCodeAt(0))));
+      const etat = nettoyer(JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(b64), ch => ch.charCodeAt(0)))));
       if (!etat || etat.c !== c.ceremonie) return erreur('Ce lien ne correspond pas à cette cérémonie.');
       if ((etat.p || 'livret') !== c.produit) return erreur('Ce lien ne correspond pas à cette pièce.');
       maj.push('etat = ?'); valeurs.push(JSON.stringify(etat));
