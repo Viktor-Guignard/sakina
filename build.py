@@ -19,7 +19,7 @@ from contenu import MARQUE, CEREMONIES, MOTIFS
 from contenu_ar import MARQUE_AR, CEREMONIES_AR, MOTIFS_AR
 from couvertures import couverture, etoile, arc_brise, motif, piece
 from livrets import TEXTES, LIVRETS, TARIFS_VISTAPRINT, MARGE, TVA
-from legal import PAGES_LEGALES
+from legal import PAGES_LEGALES, PAGES_LEGALES_AR
 from modeles import MODELES, JUZ, OCCASIONS, TARIFS_PAPETERIE, QUANTITES_PAPETERIE
 
 # Service de commande (Cloudflare Pages Functions, dossier functions/). SAKINA_API vide = même site ;
@@ -805,18 +805,19 @@ def relecture():
 
 
 def pages_legales():
-    """Brouillons des pages légales (legal.py), français seulement, en attente de validation."""
-    for fichier, (titre, sections) in PAGES_LEGALES.items():
+    """Brouillons des pages légales (legal.py), en français et en arabe (le français fait foi), en attente de validation."""
+    for fichier, (titre, sections) in (PAGES_LEGALES_AR if L == 'ar' else PAGES_LEGALES).items():
         corps = ''.join(f'<h2>{escape(h)}</h2>' + ''.join(f'<p>{escape(p)}</p>' for p in ps) for h, ps in sections)
         corps = f'''
     <section class="section">
       <div class="conteneur legal">
-        <p class="legal-brouillon">Brouillon à valider par un juriste : les passages entre crochets sont à compléter.</p>
+        <p class="legal-brouillon">{t('Brouillon à valider par un juriste : les passages entre crochets sont à compléter.',
+          'مسودّة تنتظر مراجعة محامٍ، وما بين المعقوفين يُستكمل. هذه ترجمةٌ للاطّلاع، والنصّ الفرنسي هو المعتمد.')}</p>
         <h1>{escape(titre)}</h1>
         {corps}
       </div>
     </section>'''
-        page(fichier, f'Sakîna · {titre}', titre, corps, '', '', robots='noindex, nofollow')
+        page(fichier, t(f'Sakîna · {titre}', f'سكينة · {titre}'), titre, corps, '', '', robots='noindex, nofollow')
 
 
 def charte():
@@ -955,10 +956,10 @@ def generer(langue):
     respect()
     composer()
     suivi()
+    pages_legales()
     if langue == 'fr':
         charte()
         admin()
-        pages_legales()
         relecture()
 
 
@@ -971,7 +972,8 @@ if __name__ == '__main__':
     shutil.copytree(RACINE / 'assets' / 'fonts', SITE / 'assets' / 'fonts')
     favicon()
     donnees_compositeur()
-    PAGES_AR.update(['index.html', 'ceremonies.html', 'motifs.html', 'respect.html', 'composer.html', 'suivi.html']
+    PAGES_AR.update(['index.html', 'ceremonies.html', 'motifs.html', 'respect.html', 'composer.html', 'suivi.html',
+                     'mentions-legales.html', 'cgv.html', 'confidentialite.html']
                     + [f'ceremonie-{c["id"]}.html' for c in CEREMONIES])
     generer('fr')
     generer('ar')

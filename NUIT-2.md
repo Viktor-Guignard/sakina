@@ -19,7 +19,7 @@ signaler « à relire ». Charte Iznik, arc brisé, aucune ressemblance avec liv
 - [x] 4. Accueil : une section qui montre la papeterie assortie (même motif sur livret, faire-part, menu, marque-page).
 - [x] 5. Page « Motifs » : chaque motif décliné sur plusieurs pièces.
 - [x] 6. Lien de relecture : une vue « lecture seule » simple pour l'imam (sans les questions), avec le filigrane.
-- [ ] 7. Pages légales en arabe (brouillons, mêmes réserves).
+- [x] 7. Pages légales en arabe (brouillons, mêmes réserves).
 - [ ] 8. Compositeur sur téléphone : passer de la question à l'aperçu sans se perdre (bouton « Voir l'aperçu »).
 - [ ] 9. Poids des pages et vitesse (images, scripts) ; vérifier le premier affichage sur téléphone.
 - [ ] 10. Relecture générale FR/AR des nouveaux libellés (orthographe, accords, sens de lecture).
@@ -49,3 +49,4 @@ signaler « à relire ». Charte Iznik, arc brisé, aucune ressemblance avec liv
 - 01 h 21 · Tâche 4 faite : l'accueil montre « Toute la papeterie, sous un même motif » (livret, faire-part, menu, marque-page, étiquette), posés à plat et à l'échelle, chacun mène au compositeur. Test d'accessibilité gardé dans le projet (tests/accessibilite.test.mjs) : 14 pages FR/AR sans erreur. Tests : 32 + 476 réussis.
 - 02 h 11 · Tâche 5 faite : la page Motifs montre, pour chacun des 8 motifs, sa papeterie complète (livret, faire-part, menu, marque-page, étiquette) et un lien « Composer avec ce motif ». Corrigé au passage : identifiants SVG en double sur l'accueil. Tests : 32 + 476 réussis, accessibilité 14/14.
 - 02 h 20 · Tâche 6 faite : le lien « Copier le lien pour relecture » ouvre une vue simple (composer.html?lecture=1) : la pièce seule, en grand, avec le filigrane, la liste des références à vérifier et un bouton « Modifier la pièce ». L'épreuve envoyée au client s'ouvre aussi dans cette vue. Tests : 32 + 476 réussis, accessibilité 14/14.
+- 03 h 11 · Tâche 7 faite : mentions légales, CGV et confidentialité en arabe (ar/), marquées « traduction pour information, le français fait foi » et « à relire », non indexées, liées à leur version française (hreflang). Tests : 32 + 476 réussis, accessibilité 16/16.

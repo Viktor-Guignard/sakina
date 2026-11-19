@@ -16,7 +16,7 @@ execFileSync('python3', ['build.py'], { cwd: RACINE, env, stdio: 'ignore' });
 const serveur = spawn('python3', ['-m', 'http.server', String(PORT), '--bind', '127.0.0.1', '--directory', join(RACINE, 'site')], { stdio: 'ignore' });
 await new Promise(r => setTimeout(r, 800));
 
-const pages = ['index.html', 'composer.html', 'ceremonies.html', 'ceremonie-nikah.html', 'motifs.html', 'respect.html', 'suivi.html'];
+const pages = ['index.html', 'composer.html', 'ceremonies.html', 'ceremonie-nikah.html', 'motifs.html', 'respect.html', 'suivi.html', 'cgv.html'];
 let ko = 0;
 const navigateur = await chromium.launch();
 for (const u of [...pages, ...pages.map(p => 'ar/' + p)]) {
