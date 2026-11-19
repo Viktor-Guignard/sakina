@@ -3,8 +3,7 @@
 //       expédiée…), noter le suivi du colis ou une note interne. Le client est prévenu.
 import { json, erreur, lireJson, texte, maintenant, journal, site } from '../../../_lib/outils.js';
 import { STATUTS, SUITES_ADMIN } from '../../../_lib/statuts.js';
-import { envoyer } from '../../../_lib/courriel.js';
-import { nomPiece } from '../../../_lib/prix.js';
+import { ecrireAuClient } from '../../../_lib/courriel.js';
 
 export async function onRequestGet({ env, params }) {
   const c = await env.DB.prepare('SELECT * FROM commandes WHERE id = ?').bind(String(params.id)).first();
@@ -14,16 +13,8 @@ export async function onRequestGet({ env, params }) {
     suites: SUITES_ADMIN[c.statut] || [], statuts: STATUTS });
 }
 
-// Ce que l'on écrit au client quand la commande avance.
-const MOTS = {
-  epreuve_envoyee: { fr: ['Votre épreuve est prête : relisez-la, puis validez-la ou dites-nous quoi corriger.', 'Voir et valider l’épreuve'],
-                     ar: ['نسخة المراجعة جاهزة: راجعوها ثم وافقوا عليها أو أخبرونا بما يُعدَّل.', 'عرض النسخة والموافقة عليها'] },
-  en_impression:   { fr: ['Votre commande part à l’impression.', 'Suivre ma commande'], ar: ['طلبكم قيد الطباعة الآن.', 'متابعة الطلب'] },
-  expediee:        { fr: ['Votre commande est expédiée.', 'Suivre ma commande'], ar: ['تمّ شحن طلبكم.', 'متابعة الطلب'] },
-  attente_paiement: { fr: ['Le prix de votre demande est prêt : vous pouvez régler en ligne depuis la page de suivi.', 'Voir ma demande'],
-                      ar: ['سعر طلبكم جاهز: يمكنكم الدفع من صفحة المتابعة.', 'عرض الطلب'] },
-  annulee:         { fr: ['Votre commande est annulée. Pour toute question, répondez à ce message.', 'Voir ma commande'], ar: ['أُلغي طلبكم. لأيّ سؤال، ردّوا على هذه الرسالة.', 'عرض الطلب'] },
-};
+// Le courriel envoyé au client quand la commande avance (voir _lib/courriel.js).
+const TYPE = { epreuve_envoyee: 'epreuve', en_impression: 'en_impression', expediee: 'expediee', attente_paiement: 'devis_pret', annulee: 'annulee' };
 
 export async function onRequestPatch({ request, env, params }) {
   const c = await env.DB.prepare('SELECT * FROM commandes WHERE id = ?').bind(String(params.id)).first();
@@ -62,13 +53,9 @@ export async function onRequestPatch({ request, env, params }) {
   if (statut) await journal(env, c.id, 'statut', { statut, message: texte(corps.message, 2000) || undefined });
   else await journal(env, c.id, 'modification', Object.keys(corps).join(', '));
 
-  if (statut && MOTS[statut] && corps.prevenir !== false) {
-    const ar = c.langue_site === 'ar', [phrase, bouton] = MOTS[statut][ar ? 'ar' : 'fr'];
-    const lignes = [ar ? 'السلام عليكم،' : 'Bonjour,', phrase];
-    if (texte(corps.message, 2000)) lignes.push(texte(corps.message, 2000));
-    if (statut === 'expediee' && (corps.suivi_colis || c.suivi_colis)) lignes.push((ar ? 'رقم التتبّع: ' : 'Numéro de suivi : ') + (corps.suivi_colis || c.suivi_colis));
-    await envoyer(env, { a: c.email, commande: c.id, rtl: ar, sujet: `${c.id} · ${nomPiece(c.produit, c.ceremonie, ar ? 'ar' : 'fr')}`, lignes,
-      lien: `${site(env, request)}/${ar ? 'ar/' : ''}suivi.html?c=${c.id}&j=${c.jeton}`, libelleLien: bouton });
+  if (statut && TYPE[statut] && corps.prevenir !== false) {
+    const apres = await env.DB.prepare('SELECT * FROM commandes WHERE id = ?').bind(c.id).first();
+    await ecrireAuClient(env, request, apres, TYPE[statut], { message: texte(corps.message, 2000), suivi_colis: texte(corps.suivi_colis || '', 200) });
   }
   return onRequestGet({ env, params });
 }

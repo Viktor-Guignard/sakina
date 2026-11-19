@@ -3,7 +3,7 @@
 // checkout.session.async_payment_succeeded et checkout.session.expired.
 import { json, erreur, maintenant, journal, site } from '../../_lib/outils.js';
 import { signatureValide } from '../../_lib/stripe.js';
-import { envoyer } from '../../_lib/courriel.js';
+import { envoyer, ecrireAuClient } from '../../_lib/courriel.js';
 import { nomPiece } from '../../_lib/prix.js';
 
 export async function onRequestPost({ request, env }) {
@@ -31,12 +31,9 @@ export async function onRequestPost({ request, env }) {
     await env.DB.prepare('UPDATE commandes SET statut = ?, stripe_paiement = ?, adresse = ?, telephone = COALESCE(telephone, ?), maj_le = ? WHERE id = ?')
       .bind('payee', s.payment_intent || null, JSON.stringify(adresse), s.customer_details?.phone || null, maintenant(), id).run();
     await journal(env, id, 'statut', { statut: 'payee', montant: s.amount_total });
-    const ar = c.langue_site === 'ar', base = site(env, request);
-    const suivi = `${base}/${ar ? 'ar/' : ''}suivi.html?c=${id}&j=${c.jeton}`;
-    await envoyer(env, { a: c.email, commande: id, rtl: ar, sujet: ar ? `تأكيد الطلب ${id}` : `Commande ${id} confirmée`,
-      lignes: ar ? ['السلام عليكم،', 'وصلنا دفعكم، جزاكم الله خيرًا. نُعدّ الآن نسخة المراجعة: لن يُطبع شيءٌ قبل موافقتكم.']
-                 : ['Bonjour,', 'Votre paiement est bien reçu, merci. Nous préparons l’épreuve : rien ne sera imprimé avant votre accord.'],
-      lien: suivi, libelleLien: ar ? 'متابعة الطلب' : 'Suivre ma commande' });
+    const base = site(env, request);
+    const payee = await env.DB.prepare('SELECT * FROM commandes WHERE id = ?').bind(id).first();
+    await ecrireAuClient(env, request, payee, 'paiement_confirme');
     await envoyer(env, { a: env.ADMIN_EMAIL, commande: id, sujet: `${id} payée`, lignes: [c.nom, nomPiece(c.produit, c.ceremonie), `${((s.amount_total || 0) / 100).toFixed(2)} €`],
       lien: `${base}/admin.html#${id}`, libelleLien: 'Préparer l’épreuve' });
   } else if (ev.type === 'checkout.session.expired' && c.statut === 'attente_paiement') {

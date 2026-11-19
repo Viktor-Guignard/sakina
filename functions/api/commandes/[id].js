@@ -3,7 +3,7 @@
 import { json, erreur, egal, lireJson, texte, maintenant, journal, site } from '../../_lib/outils.js';
 import { STATUTS } from '../../_lib/statuts.js';
 import { nomPiece } from '../../_lib/prix.js';
-import { envoyer } from '../../_lib/courriel.js';
+import { envoyer, ecrireAuClient } from '../../_lib/courriel.js';
 import { ouvrirPaiement } from '../../_lib/paiement.js';
 
 async function trouver(env, params, request) {
@@ -50,6 +50,7 @@ export async function onRequestPost({ request, env, params }) {
   const statut = valide ? 'epreuve_validee' : 'corrections';
   await env.DB.prepare('UPDATE commandes SET statut = ?, maj_le = ? WHERE id = ? AND statut = ?').bind(statut, maintenant(), c.id, 'epreuve_envoyee').run();
   await journal(env, c.id, statut, remarque || null);
+  await ecrireAuClient(env, request, c, valide ? 'epreuve_validee' : 'corrections_recues', { remarque });
   await envoyer(env, { a: env.ADMIN_EMAIL, commande: c.id, sujet: `${c.id} : ${valide ? 'épreuve validée' : 'corrections demandées'}`,
     lignes: [c.nom, nomPiece(c.produit, c.ceremonie), remarque], lien: `${site(env, request)}/admin.html#${c.id}`, libelleLien: 'Ouvrir' });
   return json({ statut, libelle: STATUTS[statut] });

@@ -23,7 +23,8 @@
     const d = await api('commandes' + (filtre ? '?statut=' + filtre : ''));
     statuts = d.statuts;
     const m = await api('messages');
-    $('admin-filtres').innerHTML = `<button type="button" data-messages="1" class="admin-btn-messages">Messages <small>${m.non_lus} non lu${m.non_lus > 1 ? 's' : ''}</small></button>` + [['', 'Toutes', Object.values(d.comptes).reduce((a, b) => a + b, 0)],
+    $('admin-filtres').innerHTML = `<button type="button" data-messages="1" class="admin-btn-messages">Messages <small>${m.non_lus} non lu${m.non_lus > 1 ? 's' : ''}</small></button>`
+      + '<button type="button" data-courriels="1">Courriels</button>' + [['', 'Toutes', Object.values(d.comptes).reduce((a, b) => a + b, 0)],
       ...Object.keys(statuts).filter(k => d.comptes[k]).map(k => [k, statuts[k].fr, d.comptes[k]])]
       .map(([k, l, n]) => `<button type="button" data-f="${k}"${k === filtre ? ' aria-pressed="true"' : ''}>${esc(l)} <small>${n}</small></button>`).join('');
     $('admin-liste').innerHTML = d.commandes.length ? d.commandes.map(c => `
@@ -104,6 +105,24 @@
     try { await api('messages', { method: 'PATCH', body: JSON.stringify({ id: +b.dataset.lu, lu: b.dataset.etat === '1' }) }); messages(); liste(); }
     catch (err) { message(err.message); }
   });
+  // Aperçu des courriels envoyés aux clients, et relance manuelle des épreuves en attente.
+  async function courriels(type = 'epreuve', langue = 'fr') {
+    location.hash = 'courriels';
+    const d = await api(`courriels?type=${type}&langue=${langue}`);
+    $('admin-detail').innerHTML = `<h2>Courriels aux clients</h2>
+      <div class="admin-actions"><select id="c-type">${d.types.map(x => `<option${x === type ? ' selected' : ''}>${x}</option>`).join('')}</select>
+        <select id="c-langue"><option value="fr"${langue === 'fr' ? ' selected' : ''}>français</option><option value="ar"${langue === 'ar' ? ' selected' : ''}>arabe</option></select>
+        <button type="button" class="btn btn-contour" id="c-rappels">Relancer les épreuves en attente</button></div>
+      <p class="aide">Objet : <strong>${esc(d.sujet)}</strong></p>
+      <iframe class="admin-courriel" title="Aperçu du courriel" sandbox="" srcdoc="${esc(d.html)}"></iframe>`;
+    const re = () => courriels($('c-type').value, $('c-langue').value).catch(err => message(err.message));
+    $('c-type').addEventListener('change', re); $('c-langue').addEventListener('change', re);
+    $('c-rappels').addEventListener('click', async () => {
+      try { const r = await api('rappels', { method: 'POST' }); message(r.relances.length ? `Relancé : ${r.relances.join(', ')}` : 'Aucune épreuve à relancer.'); }
+      catch (err) { message(err.message); }
+    });
+  }
+  $('admin-filtres').addEventListener('click', e => { if (e.target.closest('[data-courriels]')) courriels().catch(err => message(err.message)); });
   $('admin-filtres').addEventListener('click', e => { if (e.target.closest('[data-messages]')) return void messages().catch(err => message(err.message)); });
   $('admin-filtres').addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (b) { filtre = b.dataset.f; liste().catch(err => message(err.message)); } });
   $('admin-connexion').addEventListener('submit', async e => {
@@ -115,6 +134,7 @@
     await liste();
     $('admin-connexion').hidden = true; $('admin-app').hidden = false; message('');
     if (location.hash === '#messages') return void messages().catch(err => message(err.message));
+    if (location.hash === '#courriels') return void courriels().catch(err => message(err.message));
     if (location.hash.length > 1) detail(decodeURIComponent(location.hash.slice(1))).catch(err => message(err.message));
   }
   if (jeton) demarrer().catch(err => message(err.message));

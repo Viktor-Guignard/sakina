@@ -830,3 +830,6 @@ html[lang="ar"] .lecture-titre { font-family: var(--f-titre-ar) !important; }
 .admin-message p { margin: 0 0 6px; }
 .admin-message.non-lu { border-inline-start: 3px solid var(--grenade); padding-inline-start: 12px; }
 .admin-message-texte { white-space: pre-wrap; color: var(--encre); }
+
+.admin-courriel { width: 100%; height: 640px; margin-top: 10px; border: 1px solid var(--filet); border-radius: 14px; background: #EEF4F1; }
+.admin-detail select { padding: 8px 10px; border: 1px solid var(--filet); border-radius: 10px; font: inherit; }

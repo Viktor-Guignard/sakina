@@ -150,6 +150,14 @@ try {
   const pieges = sessions.length;
   verifier((await post({ ...base, site_web: 'http://spam' })).ok && sessions.length === pieges, 'robot piégé sans commande');
 
+  console.log('Courriels');
+  const ap = await (await admin('courriels?type=epreuve&langue=ar')).json();
+  verifier(ap.types.length >= 10 && ap.html.includes('dir="rtl"') && ap.sujet.includes('SK-EXEMPLE1'), `aperçu des courriels (${ap.types.length} modèles, arabe de droite à gauche)`);
+  const histoAvant = (await (await admin(`commandes/${id}`)).json()).historique.filter(e => e.type === 'courriel_non_envoye').length;
+  verifier(histoAvant >= 3, `chaque étape écrit au client (${histoAvant} courriels prêts, non envoyés sans clé Brevo)`);
+  const rap = await (await admin('rappels', { method: 'POST' })).json();
+  verifier(Array.isArray(rap.relances) && !rap.relances.includes(id), 'rappels : une épreuve validée n’est pas relancée');
+
   console.log('Page Contact');
   await page.goto(`${BASE}/contact.html`);
   await page.fill('#contact [name=nom]', 'Samira');

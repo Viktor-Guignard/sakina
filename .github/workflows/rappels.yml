@@ -1,0 +1,21 @@
+# Chaque matin, relance les clients dont l'épreuve attend depuis plus de 3 jours.
+# Ne fait rien tant que les secrets SAKINA_URL (adresse du site sur Cloudflare) et
+# ADMIN_JETON ne sont pas définis dans les réglages du dépôt (Settings > Secrets).
+name: Rappels d'épreuve
+on:
+  schedule:
+    - cron: '17 8 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  rappels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Relancer les épreuves en attente
+        env:
+          SAKINA_URL: ${{ secrets.SAKINA_URL }}
+          ADMIN_JETON: ${{ secrets.ADMIN_JETON }}
+        run: |
+          if [ -z "$SAKINA_URL" ] || [ -z "$ADMIN_JETON" ]; then echo "Service de commande pas encore en ligne : rien à faire."; exit 0; fi
+          curl -fsS -X POST "$SAKINA_URL/api/admin/rappels" -H "Authorization: Bearer $ADMIN_JETON"

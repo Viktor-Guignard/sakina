@@ -3,7 +3,7 @@
 import { json, erreur, identifiant, jeton, sha256, lireJson, texte, emailValide, maintenant, journal, site } from '../../_lib/outils.js';
 import { chiffrer } from '../../_lib/prix.js';
 import { ouvrirPaiement, resume } from '../../_lib/paiement.js';
-import { envoyer } from '../../_lib/courriel.js';
+import { envoyer, ecrireAuClient } from '../../_lib/courriel.js';
 
 const MAX_PAR_HEURE = 10;   // commandes depuis une même adresse IP
 
@@ -55,10 +55,8 @@ export async function onRequestPost({ request, env }) {
     lien: `${base}/admin.html#${id}`, libelleLien: 'Ouvrir dans l’administration' });
 
   if (prix.montant == null) {
-    await envoyer(env, { a: email, commande: id, rtl: ar,
-      sujet: ar ? `طلب عرض السعر ${id}` : `Votre demande de devis ${id}`,
-      lignes: ar ? ['السلام عليكم،', `وصلنا طلبكم (${quoi}). سنرسل إليكم السعر قريبًا.`] : ['Bonjour,', `Nous avons bien reçu votre demande (${quoi}). Nous revenons vers vous avec un prix très vite.`],
-      lien: suivi, libelleLien: ar ? 'متابعة الطلب' : 'Suivre ma demande' });
+    const c = await env.DB.prepare('SELECT * FROM commandes WHERE id = ?').bind(id).first();
+    await ecrireAuClient(env, request, c, 'devis_recu');
     return json({ id, url: suivi });
   }
 
