@@ -21,6 +21,7 @@ from couvertures import couverture, etoile, arc_brise, motif, piece
 from livrets import TEXTES, LIVRETS, TARIFS_VISTAPRINT, MARGE, TVA
 from legal import PAGES_LEGALES, PAGES_LEGALES_AR
 from pieces import PIECES
+from faq import FAQ
 from modeles import MODELES, JUZ, OCCASIONS, TARIFS_PAPETERIE, QUANTITES_PAPETERIE
 
 # Service de commande (Cloudflare Pages Functions, dossier functions/). SAKINA_API vide = même site ;
@@ -324,8 +325,6 @@ def accueil():
          'description': t('Livrets et papeterie pour les cérémonies musulmanes, en français et en arabe.', 'كتيّبات وأوراق للمناسبات الإسلامية، بالعربية والفرنسية.')},
         {'@context': 'https://schema.org', '@type': 'WebSite', 'name': t(MARQUE['nom'], MARQUE['nom_ar']), 'url': f'{BASE}/{"ar/" if L == "ar" else ""}',
          'inLanguage': L},
-        {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': [
-            {'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': r_}} for q, r_ in questions]},
     ]
     corps = f'''
     <section class="seuil">
@@ -412,6 +411,7 @@ def accueil():
       <div class="conteneur">
         <div class="entete-section"><h2>{t('On nous demande souvent', 'يسألوننا كثيرًا')}</h2></div>
         <div class="qrs">{qr}</div>
+        <p style="margin-top:24px"><a href="questions-frequentes.html">{t('Toutes les questions', 'كلّ الأسئلة')} {t('→', '←')}</a></p>
       </div>
     </section>
 
@@ -889,6 +889,36 @@ def pages_pieces():
          corps, 'papeterie.html', jsonld=[fil_ariane([(t('Accueil', 'الرئيسية'), ''), (t('Livrets et papeterie', 'الكتيّبات والأوراق'), 'papeterie.html')])])
 
 
+def questions_frequentes():
+    """Questions fréquentes (faq.py), en accordéon, avec les données structurées FAQPage."""
+    i = 1 if L == 'ar' else 0
+    sections, toutes = '', []
+    for titre_fr, titre_ar, qs in FAQ:
+        items = ''
+        for q_fr, q_ar, r_fr, r_ar in qs:
+            q, r_ = (q_ar, r_ar) if L == 'ar' else (q_fr, r_fr)
+            toutes.append((q, r_))
+            items += f'<details class="faq"><summary>{escape(q)}</summary><p>{escape(r_)}</p></details>'
+        sections += f'<h2>{escape(titre_ar if L == "ar" else titre_fr)}</h2>{items}'
+    corps = f'''
+    <section class="section">
+      <div class="conteneur faq-page">
+        {fil(f'<a href="index.html">{t("Accueil", "الرئيسية")}</a>', t('Questions fréquentes', 'أسئلة شائعة'))}
+        <h1>{t('Questions fréquentes', 'أسئلة شائعة')}</h1>
+        <p class="chapo">{t('Composer, faire relire, commander : ce qu’on nous demande le plus souvent.', 'التصميم والمراجعة والطلب: أكثر ما يُسأل عنه.')}</p>
+        {sections}
+        <p class="faq-fin"><a class="btn btn-or" href="composer.html">{t('Composer ma pièce', 'صمّموا قطعتكم')}</a></p>
+      </div>
+    </section>'''
+    page('questions-frequentes.html', t('Questions fréquentes · Sakîna', 'أسئلة شائعة · سكينة'),
+         t("Composer un livret ou un faire-part musulman, faire relire les versets, payer, recevoir l'épreuve, délais et livraison : les réponses de Sakîna.",
+           'تصميم كتيّبٍ أو بطاقةٍ إسلامية، ومراجعة الآيات، والدفع، ونسخة المراجعة، والمواعيد والتوصيل: أجوبة سكينة.'),
+         corps, '', jsonld=[
+             {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': [
+                 {'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': r_}} for q, r_ in toutes]},
+             fil_ariane([(t('Accueil', 'الرئيسية'), ''), (t('Questions fréquentes', 'أسئلة شائعة'), 'questions-frequentes.html')])])
+
+
 def plan_du_site():
     """sitemap.xml et robots.txt. L'adresse vient de SAKINA_SITE (par défaut, l'adresse provisoire sur GitHub Pages).
     Les pages privées (suivi, administration, brouillons) sont exclues ; le reste du site reste indexable comme avant."""
@@ -1097,6 +1127,7 @@ def generer(langue):
     suivi()
     pages_legales()
     pages_pieces()
+    questions_frequentes()
     if langue == 'fr':
         charte()
         admin()
@@ -1114,7 +1145,7 @@ if __name__ == '__main__':
     favicon()
     donnees_compositeur()
     PAGES_AR.update(['index.html', 'ceremonies.html', 'motifs.html', 'respect.html', 'composer.html', 'suivi.html',
-                     'mentions-legales.html', 'cgv.html', 'confidentialite.html', 'papeterie.html'] + [P['page'] for P in PIECES.values()]
+                     'mentions-legales.html', 'cgv.html', 'confidentialite.html', 'papeterie.html', 'questions-frequentes.html'] + [P['page'] for P in PIECES.values()]
                     + [f'ceremonie-{c["id"]}.html' for c in CEREMONIES])
     generer('fr')
     generer('ar')
