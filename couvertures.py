@@ -82,3 +82,44 @@ def couverture(cle, c):
   <polygon points="{etoile(74, y[3], 2.6)}" fill="{c['trait']}"/>
   <text class="c-date" x="74" y="{y[4]}" text-anchor="middle" font-family="Manrope, sans-serif" font-size="4.6" fill="{c['texte']}" opacity=".75">{escape(date)}</text>
 </svg>'''
+
+
+def piece(sorte, cle, c, phrase, noms, date=''):
+    """Vignette d'une pièce de papeterie (accueil, page des motifs), à l'échelle de son format :
+    faire-part (105 × 148), menu (99 × 210), marque-page (50 × 150), étiquette ronde (Ø 50).
+    Même décor que la couverture : le motif dans un arc brisé, jamais de cadre rectangulaire."""
+    formats = {'faire_part': (105, 148), 'menu': (99, 210), 'marque_page': (50, 150), 'etiquette': (50, 50)}
+    l, h = formats[sorte]
+    sombre = c['fond'].lower() in ('#11706b', '#0f2747')
+    accent = c['trait'] if sombre else c['accent']
+    idc = f'pc-{sorte}-{cle}'
+    if sorte == 'etiquette':
+        corps = (f'<defs><clipPath id="{idc}"><circle cx="25" cy="25" r="22"/></clipPath></defs>'
+                 f'<circle cx="25" cy="25" r="25" fill="{c["fond"]}"/><circle cx="25" cy="25" r="22.5" fill="none" stroke="{c["trait"]}" stroke-width=".45"/>'
+                 f'<g clip-path="url(#{idc})" opacity=".28"><g transform="translate({25 - 74 * .7:.2f} {25 - 66 * .7:.2f}) scale(.7)">{motif(c["motif"], c)}</g></g>'
+                 f'<text x="25" y="25" text-anchor="middle" direction="rtl" font-family="Amiri, serif" font-size="8" fill="{accent}">{escape(phrase)}</text>'
+                 f'<text x="25" y="33" text-anchor="middle" font-family="Marcellus, serif" font-size="4.6" fill="{c["texte"]}">{escape(noms)}</text>')
+    else:
+        m = 6 if l < 60 else 8
+        ah = 74 if sorte == 'menu' else h - 2 * m
+        aw = l - 2 * m
+        s_ = aw / 128
+        corps = (f'<defs><clipPath id="{idc}"><path d="{arc_brise(m, m, aw, ah)}Z"/></clipPath></defs>'
+                 f'<rect width="{l}" height="{h}" fill="{c["fond"] if sorte != "menu" else "#FFFFFF"}"/>'
+                 + (f'<path d="{arc_brise(m, m, aw, ah)}Z" fill="{c["fond"]}"/>' if sorte == 'menu' else '')
+                 + f'<path d="{arc_brise(m, m, aw, ah)}" fill="none" stroke="{c["trait"]}" stroke-width=".7"/>'
+                 f'<g clip-path="url(#{idc})"><g transform="translate({m + aw / 2 - 74 * s_:.2f} {m + ah * .3 - 66 * s_:.2f}) scale({s_:.3f})">{motif(c["motif"], c)}</g></g>')
+        if sorte == 'menu':
+            corps += (f'<text x="{l / 2}" y="{m + ah * .78}" text-anchor="middle" direction="rtl" font-family="Amiri, serif" font-size="9" fill="{accent}">{escape(phrase)}</text>'
+                      f'<text x="{l / 2}" y="104" text-anchor="middle" font-family="Marcellus, serif" font-size="13" fill="{c["accent"] if not sombre else c["fond"]}">Menu</text>'
+                      + ''.join(f'<line x1="{l * .28:.1f}" x2="{l * .72:.1f}" y1="{y}" y2="{y}" stroke="{c["trait"]}" stroke-width=".4" opacity=".6"/>'
+                                for y in (124, 130, 146, 152, 168, 174, 190)))
+        elif sorte == 'marque_page':
+            corps += (f'<text x="{l / 2}" y="{h * .62}" text-anchor="middle" direction="rtl" font-family="Amiri, serif" font-size="8" fill="{accent}">{escape(phrase)}</text>'
+                      f'<text x="{l / 2}" y="{h * .72}" text-anchor="middle" font-family="Marcellus, serif" font-size="5.5" fill="{c["texte"]}">{escape(noms)}</text>')
+        else:
+            corps += (f'<text x="{l / 2}" y="{h * .6}" text-anchor="middle" direction="rtl" font-family="Amiri, serif" font-size="11" fill="{accent}">{escape(phrase)}</text>'
+                      f'<text x="{l / 2}" y="{h * .72}" text-anchor="middle" font-family="Marcellus, serif" font-size="9" fill="{c["texte"]}">{escape(noms)}</text>'
+                      f'<polygon points="{etoile(l / 2, h * .78, 1.8)}" fill="{c["trait"]}"/>'
+                      f'<text x="{l / 2}" y="{h * .84}" text-anchor="middle" font-family="Manrope, sans-serif" font-size="3.6" fill="{c["texte"]}" opacity=".75">{escape(date)}</text>')
+    return f'<svg viewBox="0 0 {l} {h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">{corps}</svg>'

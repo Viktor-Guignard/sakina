@@ -17,7 +17,7 @@ from pathlib import Path
 
 from contenu import MARQUE, CEREMONIES, MOTIFS
 from contenu_ar import MARQUE_AR, CEREMONIES_AR, MOTIFS_AR
-from couvertures import couverture, etoile, arc_brise, motif
+from couvertures import couverture, etoile, arc_brise, motif, piece
 from livrets import TEXTES, LIVRETS, TARIFS_VISTAPRINT, MARGE, TVA
 from legal import PAGES_LEGALES
 from modeles import MODELES, JUZ, OCCASIONS, TARIFS_PAPETERIE, QUANTITES_PAPETERIE
@@ -255,6 +255,22 @@ def fil_vie():
         <div class="annee"><p class="annee-titre">{t("Et chaque année", "وفي كل عام")}</p><div class="annee-saisons">{annee}</div></div>'''
 
 
+def famille_papeterie(cle='alhambra', ceremonie='nikah'):
+    """Les pièces d'une même famille, posées à plat côte à côte, à l'échelle de leur format."""
+    m = MOTIFS[cle]
+    phrase, noms = m['phrase'], m['noms'] if L == 'fr' else LIVRETS[ceremonie]['noms_ar']
+    date = chiffres('14 . 06 . 2027')
+    couv = couverture(cle, dict(m, noms=noms, titre=m['titre'] if L == 'fr' else LIVRETS[ceremonie]['titre_ar'], date=date))
+    pieces = [('livret', couv, 148, 210), ('faire_part', piece('faire_part', cle, m, phrase, noms, date), 105, 148),
+              ('menu', piece('menu', cle, m, phrase, noms), 99, 210), ('marque_page', piece('marque_page', cle, m, phrase, noms), 50, 150),
+              ('etiquette', piece('etiquette', cle, m, phrase, noms), 50, 50)]
+    items = ''.join(
+        f'<a class="famille-piece{" famille-rond" if k == "etiquette" else ""}" href="composer.html?c={ceremonie}&amp;p={k}&amp;m={cle}" style="--l:{l};--h:{h}">'
+        f'<span class="famille-visuel">{svg}</span><span class="famille-nom">{escape(MODELES[k]["nom_ar"] if L == "ar" else MODELES[k]["nom_fr"])}</span></a>'
+        for k, svg, l, h in pieces)
+    return f'<div class="famille">{items}</div>'
+
+
 def accueil():
     motifs = ''.join(carte_motif(k) for k in ('alhambra', 'iznik', 'medine', 'nuit'))
     questions = [
@@ -301,6 +317,17 @@ def accueil():
     </section>
 
     <section class="section section-sable">
+      <div class="conteneur">
+        <div class="entete-section">
+          <h2>{t('Toute la papeterie, sous un même motif', 'كلّ الأوراق بزخرفةٍ واحدة')}</h2>
+          <p class="chapo">{t("Le livret, le faire-part, le menu, le marque-page et l'étiquette des dragées : composez-les ensemble, ils se répondent.",
+                              'الكتيّب، وبطاقة الإعلان، وقائمة الطعام، وفاصل الكتاب، وملصق الحلوى: صمّموها معًا لتتناغم.')}</p>
+        </div>
+        {famille_papeterie()}
+      </div>
+    </section>
+
+    <section class="section">
       <div class="conteneur ecritures">
         <h2>{t('Trois écritures, une seule page', 'ثلاث كتابات في صفحة واحدة')}</h2>
         <p class="chapo">{t("Ceux qui lisent l'arabe, ceux qui le récitent sans le lire, ceux qui le découvrent : chacun suit.", 'من يقرأ العربية، ومن يردّدها دون قراءتها، ومن يكتشفها: كلٌّ يتابع.')}</p>
@@ -312,7 +339,7 @@ def accueil():
       </div>
     </section>
 
-    <section class="section">
+    <section class="section section-sable">
       <div class="conteneur">
         <div class="entete-section">
           <h2>{t('Des motifs, jamais des images', 'زخارف لا صور')}</h2>
