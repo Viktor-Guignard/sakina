@@ -462,7 +462,9 @@ def page_ceremonie(c):
     intro = ''.join(f'<p class="chapo">{escape(p)}</p>' for p in cv(c, 'intro'))
     motifs = ''.join(carte_motif(k, c['id']) for k in c['motifs'])
     nom = cv(c, 'nom')
-    pieces = ''.join(f'<li><a href="composer.html?c={c["id"]}&amp;p={k}">{escape(m["nom_ar"] if L == "ar" else m["nom_fr"])}</a></li>'
+    # Chaque pièce : sa page (pour comprendre) et un lien direct vers le compositeur (pour commencer).
+    pieces = ''.join(f'<li><a href="{PIECES[k]["page"]}">{escape(m["nom_ar"] if L == "ar" else m["nom_fr"])}</a>'
+                     f' <a class="lien-composer" href="composer.html?c={c["id"]}&amp;p={k}" aria-label="{t("Composer", "صمّموا")} : {escape(m["nom_ar"] if L == "ar" else m["nom_fr"])}">{t("composer", "تصميم")} {t("→", "←")}</a></li>'
                      for k, m in MODELES.items() if c['id'] in m['ceremonies'])
     # Cérémonies voisines sur le fil de la vie (ou de l'année).
     suite = VIE if c['id'] in VIE else ANNEE
