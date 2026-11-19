@@ -6,9 +6,10 @@
     "site": "python3 build.py",
     "base:locale": "wrangler d1 migrations apply sakina --local",
     "dev": "python3 build.py && wrangler pages dev site --port 8788",
-    "test": "node tests/serveur.test.mjs && node tests/compositeur.test.mjs && node tests/accessibilite.test.mjs",
+    "test": "node tests/serveur.test.mjs && node tests/compositeur.test.mjs && node tests/accessibilite.test.mjs && node tests/referencement.test.mjs",
     "test:compositeur": "node tests/compositeur.test.mjs",
-    "test:accessibilite": "node tests/accessibilite.test.mjs"
+    "test:accessibilite": "node tests/accessibilite.test.mjs",
+    "test:referencement": "node tests/referencement.test.mjs"
   },
   "devDependencies": {
     "axe-core": "^4.10.2",

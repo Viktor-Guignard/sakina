@@ -25,6 +25,8 @@ from modeles import MODELES, JUZ, OCCASIONS, TARIFS_PAPETERIE, QUANTITES_PAPETER
 # Service de commande (Cloudflare Pages Functions, dossier functions/). SAKINA_API vide = même site ;
 # une adresse = un autre domaine ; absent = pas de commande en ligne (site statique seul, GitHub Pages).
 API = os.environ.get('SAKINA_API')
+# Adresse publique du site, pour les liens canoniques, hreflang, Open Graph et le plan du site.
+BASE = os.environ.get('SAKINA_SITE', 'https://viktor-guignard.github.io/sakina').rstrip('/')
 
 RACINE = Path(__file__).parent
 SITE = RACINE / 'site'
@@ -122,7 +124,7 @@ SCRIPT_COMMUN = '''
   </script>'''
 
 
-def page(fichier, titre, description, corps, actif='', scripts='', robots=''):
+def page(fichier, titre, description, corps, actif='', scripts='', robots='', jsonld=None):
     r = racine()
     nav = [('ceremonies.html', t("Le fil d'une vie", 'مسيرة العمر')), ('motifs.html', t('Motifs', 'الزخارف')),
            ('respect.html', t('Notre éthique', 'ميثاقنا'))]
@@ -138,10 +140,17 @@ def page(fichier, titre, description, corps, actif='', scripts='', robots=''):
         url_fr, url_ar = fichier, f'ar/{fichier}' if fichier in PAGES_AR else 'ar/index.html'
     bascule = (f'<a class="bascule-langue" href="{url_fr}" data-langue="fr" lang="fr" hreflang="fr">Français</a>' if L == 'ar'
                else f'<a class="bascule-langue" href="{url_ar}" data-langue="ar" lang="ar" hreflang="ar">العربية</a>')
-    alternates = ''
+    # Référencement : adresse canonique et versions linguistiques en adresses absolues (exigé par Google).
+    adresse = f'{BASE}/{"ar/" if L == "ar" else ""}{fichier}'.replace('/index.html', '/')
+    alternates = f'<link rel="canonical" href="{adresse}">'
     if fichier in PAGES_AR:
-        alternates = (f'<link rel="alternate" hreflang="fr" href="{r}{fichier}">'
-                      f'<link rel="alternate" hreflang="ar" href="{r}ar/{fichier}">')
+        fr, ar = f'{BASE}/{fichier}'.replace('/index.html', '/'), f'{BASE}/ar/{fichier}'.replace('/index.html', '/')
+        alternates += (f'\n  <link rel="alternate" hreflang="fr" href="{fr}">'
+                       f'\n  <link rel="alternate" hreflang="ar" href="{ar}">'
+                       f'\n  <link rel="alternate" hreflang="x-default" href="{fr}">')
+    image = f'{BASE}/assets/img/partage-{L}.jpg'
+    donnees = ''.join(f'\n  <script type="application/ld+json">{json.dumps(d, ensure_ascii=False, separators=(",", ":"))}</script>'
+                      for d in (jsonld or []))
     charte_lien = (f'<li><a href="../charte-graphique.html" lang="fr">Charte graphique</a></li>' if L == 'ar'
                    else '<li><a href="charte-graphique.html">Charte graphique</a></li>')
     nom = t(MARQUE['nom'], MARQUE_AR['nom'])
@@ -155,6 +164,15 @@ def page(fichier, titre, description, corps, actif='', scripts='', robots=''):
   <meta name="description" content="{escape(description)}">
   <meta property="og:title" content="{escape(titre)}">
   <meta property="og:description" content="{escape(description)}">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{adresse}">
+  <meta property="og:site_name" content="{t('Sakîna', 'سكينة')}">
+  <meta property="og:locale" content="{t('fr_FR', 'ar_AR')}">
+  <meta property="og:image" content="{image}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="{t('Sakîna : livrets et papeterie des cérémonies musulmanes', 'سكينة: كتيّبات وأوراق المناسبات الإسلامية')}">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#0F2747">
   {f'<meta name="robots" content="{robots}">' if robots else ''}
   {alternates}
@@ -162,7 +180,7 @@ def page(fichier, titre, description, corps, actif='', scripts='', robots=''):
   <link rel="preload" href="{r}assets/fonts/Amiri-400-arabic.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{r}assets/fonts/{t('Manrope-400-latin', 'IBMPlexSansArabic-400-arabic')}.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="{r}assets/css/polices.css?v={version('assets/css/polices.css')}">
-  <link rel="stylesheet" href="{r}assets/css/style.css?v={version('assets/css/style.css')}">
+  <link rel="stylesheet" href="{r}assets/css/style.css?v={version('assets/css/style.css')}">{donnees}
 </head>
 <body>
   <a class="visuellement-cache" href="#contenu">{t('Passer directement au texte', 'الانتقال مباشرةً إلى النص')}</a>
@@ -256,6 +274,13 @@ def fil_vie():
         <div class="annee"><p class="annee-titre">{t("Et chaque année", "وفي كل عام")}</p><div class="annee-saisons">{annee}</div></div>'''
 
 
+def fil_ariane(etapes):
+    """Données structurées BreadcrumbList (schema.org) : [(nom, fichier), …]."""
+    racine_l = f'{BASE}/ar/' if L == 'ar' else f'{BASE}/'
+    return {'@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+        {'@type': 'ListItem', 'position': i + 1, 'name': n, 'item': racine_l + f} for i, (n, f) in enumerate(etapes)]}
+
+
 def famille_papeterie(cle='alhambra', ceremonie='nikah', compacte=False):
     """Les pièces d'une même famille, posées à plat côte à côte, à l'échelle de leur format."""
     m = MOTIFS[cle]
@@ -292,6 +317,15 @@ def accueil():
            'تُقدَّم أوراق الجنازة على كل ما سواها: نسخة المراجعة في ساعات قليلة. أمّا الطباعة، فنخبركم قبل الطلب بالمدّة الممكنة فعلًا.')),
     ]
     qr = ''.join(f'<div class="qr"><p class="qr-q">{q}</p><p class="qr-r">{r}</p></div>' for q, r in questions)
+    jsonld = [
+        {'@context': 'https://schema.org', '@type': 'Organization', 'name': MARQUE['nom'], 'alternateName': MARQUE['nom_ar'],
+         'url': f'{BASE}/', 'logo': f'{BASE}/assets/img/favicon.svg',
+         'description': t('Livrets et papeterie pour les cérémonies musulmanes, en français et en arabe.', 'كتيّبات وأوراق للمناسبات الإسلامية، بالعربية والفرنسية.')},
+        {'@context': 'https://schema.org', '@type': 'WebSite', 'name': t(MARQUE['nom'], MARQUE['nom_ar']), 'url': f'{BASE}/{"ar/" if L == "ar" else ""}',
+         'inLanguage': L},
+        {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': [
+            {'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': r_}} for q, r_ in questions]},
+    ]
     corps = f'''
     <section class="seuil">
       <div class="seuil-arc">
@@ -390,7 +424,7 @@ def accueil():
     page('index.html', t(f'{MARQUE["nom"]} · livrets et papeterie des cérémonies musulmanes', 'سكينة · كتيّبات وأوراق المناسبات الإسلامية'),
          t("Livrets de cérémonie et papeterie pour le nikâh, l'aqîqa, le hajj, l'Aïd et la janâza, en français et en arabe, dans le respect du sacré.",
            'كتيّبات وأوراق لعقد النكاح والعقيقة والحج والعيد والجنازة، بالعربية والفرنسية، في احترامٍ للمقدّس.'),
-         corps, 'index.html')
+         corps, 'index.html', jsonld=jsonld)
 
 
 def ceremonies():
@@ -459,7 +493,10 @@ def page_ceremonie(c):
       </div>
     </section>'''
     page(f'ceremonie-{c["id"]}.html', t(f'{MARQUE["nom"]} · {c["nom"]}', f'سكينة · {nom}'),
-         cv(c, 'court'), corps, 'ceremonies.html')
+         cv(c, 'court') + t(' Livret, faire-part et papeterie à composer en ligne, en français et en arabe, avec versets référencés.',
+                            ' كتيّبٌ وبطاقاتٌ وأوراقٌ تُصمَّم عبر الإنترنت، بالعربية والفرنسية، مع آياتٍ موثّقة.'),
+         corps, 'ceremonies.html', jsonld=[fil_ariane([(t('Accueil', 'الرئيسية'), ''), (t("Le fil d'une vie", 'مسيرة العمر'), 'ceremonies.html'),
+                                                      (nom, f'ceremonie-{c["id"]}.html')])])
 
 
 def motifs():
@@ -494,7 +531,7 @@ def motifs():
     </section>'''
     page('motifs.html', t(f'{MARQUE["nom"]} · Les motifs', 'سكينة · الزخارف'),
          t("Huit motifs inspirés des arts de l'islam : Alhambra, Iznik, Médine, Andalousie…", 'ثماني زخارف مستوحاة من الفنون الإسلامية: الحمراء، إزنيق، المدينة، الأندلس…'),
-         corps, 'motifs.html')
+         corps, 'motifs.html', jsonld=[fil_ariane([(t('Accueil', 'الرئيسية'), ''), (t('Motifs', 'الزخارف'), 'motifs.html')])])
 
 
 def respect():
@@ -530,7 +567,7 @@ def respect():
       </div>
     </section>'''
     page('respect.html', t(f'{MARQUE["nom"]} · Notre éthique', 'سكينة · ميثاقنا'),
-         t('Versets vérifiés, mention de respect, modèles sans figures : notre charte.', 'آيات موثّقة، وتنبيهٌ بالاحترام، ونماذج بلا صور: ميثاقنا.'),
+         t('Versets vérifiés, mention de respect, modèles sans figures : notre charte.', 'آياتٌ موثّقة بمراجعها، وتنبيهٌ بالاحترام على كل كتيّب، ونماذج بلا صور: ميثاق سكينة في احترام المقدّس.'),
          corps, 'respect.html')
 
 
@@ -779,7 +816,7 @@ def entetes():
 def plan_du_site():
     """sitemap.xml et robots.txt. L'adresse vient de SAKINA_SITE (par défaut, l'adresse provisoire sur GitHub Pages).
     Les pages privées (suivi, administration, brouillons) sont exclues ; le reste du site reste indexable comme avant."""
-    base = os.environ.get('SAKINA_SITE', 'https://viktor-guignard.github.io/sakina').rstrip('/')
+    base = BASE
     prives = {'suivi.html', 'admin.html', 'relecture.html', 'mentions-legales.html', 'cgv.html', 'confidentialite.html'}
     urls = sorted(p.relative_to(SITE).as_posix() for p in SITE.rglob('*.html') if p.name not in prives)
     (SITE / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -960,7 +997,7 @@ def charte():
         </div>
       </div>
     </section>'''
-    page('charte-graphique.html', f'{MARQUE["nom"]} · Charte graphique', "Signe, couleurs, typographies et motifs de l'identité Sakîna.", corps)
+    page('charte-graphique.html', f'{MARQUE["nom"]} · Charte graphique', "Signe, couleurs, typographies et motifs de l'identité Sakîna : la charte graphique des livrets et du site.", corps)
 
 
 def favicon():
@@ -996,6 +1033,7 @@ if __name__ == '__main__':
     shutil.copytree(RACINE / 'assets' / 'css', SITE / 'assets' / 'css')
     shutil.copytree(RACINE / 'assets' / 'js', SITE / 'assets' / 'js')
     shutil.copytree(RACINE / 'assets' / 'fonts', SITE / 'assets' / 'fonts')
+    shutil.copytree(RACINE / 'assets' / 'img', SITE / 'assets' / 'img')   # images de partage (tools/image-partage.mjs)
     favicon()
     donnees_compositeur()
     PAGES_AR.update(['index.html', 'ceremonies.html', 'motifs.html', 'respect.html', 'composer.html', 'suivi.html',
