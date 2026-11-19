@@ -45,7 +45,7 @@ signaler « à relire ». Charte Iznik, arc brisé, aucune ressemblance avec liv
 - [x] 22. (initiative) Tester de bout en bout le « Fichier pour l'imprimeur » depuis l'administration.
 - [x] 23. (initiative) L'administration sur téléphone.
 - [x] 24. (initiative) README à jour ; `npm run dev` complet ; adresses publiques sans « .html ».
-- [ ] 18. Rapport de midi : ce qui a été fait, captures avant/après, ce qui attend Viktor (Stripe, courriels, juriste, imam, domaine).
+- [x] 18. Rapport de midi : ce qui a été fait, captures avant/après, ce qui attend Viktor (Stripe, courriels, juriste, imam, domaine).
 
 ## Journal
 
@@ -73,3 +73,4 @@ signaler « à relire ». Charte Iznik, arc brisé, aucune ressemblance avec liv
 - 09 h 11 · Tâche 22 faite (initiative) : un vrai défaut trouvé et corrigé. Le bouton « Fichier pour l'imprimeur » ouvrait la pièce AVEC filigrane : les navigateurs récents ne transmettent plus la session à un onglet ouvert par un simple lien. Il s'ouvre maintenant par window.open, qui la transmet. Testé de bout en bout : sans filigrane et avec 3 mm de fond perdu depuis l'administration ; toujours avec filigrane sans le mot de passe. Tests : 46 + 480, accessibilité 26/26, référencement 75 pages.
 - 10 h 11 · Tâche 23 faite (initiative) : l'administration vérifiée sur iPhone (aucun défilement de côté, boutons de 40 px au moins). Amélioré : sur téléphone, ouvrir une commande amène directement son détail à l'écran (au lieu de le laisser sous toute la liste), avec un bouton « ← Toutes les commandes ». Testé automatiquement. Tests : 47 + 480, accessibilité 26/26, référencement 75 pages.
 - 11 h 11 · Tâche 24 faite (initiative) : README réécrit (commandes, fichiers, service, règles). `npm run dev` lance maintenant le site et le service en local avec la base. Découverte importante en l'essayant : Cloudflare redirige composer.html vers /composer (308) ; les adresses canoniques, hreflang, le plan du site et les données structurées utilisent donc désormais les adresses sans « .html » (servies aussi par GitHub Pages), pour que Google ne soit jamais renvoyé vers une adresse qui redirige. Vérifié sur le serveur Cloudflare local : l'adresse canonique répond sans redirection, et les liens en .html des courriels gardent leurs paramètres. Tests : 49 + 480, accessibilité 26/26, référencement 75 pages (nouveau contrôle : aucun .html dans le plan du site).
+- 12 h 12 · Rapport de midi : RAPPORT-MIDI.md. Sauvegarde envoyée à Viktor. Réveils arrêtés.
