@@ -207,6 +207,22 @@ try {
   await page.waitForFunction(() => document.querySelector('[data-messages] small').textContent.startsWith('0'));
   verifier(true, 'messages lus dans l’administration, puis marqués lus');
   if (process.env.CAPTURES) await page.screenshot({ path: join(process.env.CAPTURES, 'admin.png'), fullPage: true });
+  // Fichier pour l'imprimeur : ouvert depuis l'administration, sans filigrane, avec fond perdu.
+  await page.click(`.admin-ligne[data-id="${id}"]`);
+  await page.waitForSelector('#admin-detail a[href*="atelier=1"]');
+  const [atelier] = await Promise.all([page.context().waitForEvent('page'), page.click('#admin-detail a[href*="atelier=1"]')]);
+  await atelier.waitForSelector('#apercu .lp-page');
+  await atelier.waitForFunction(() => !document.getElementById('apercu').classList.contains('filigrane'), null, { timeout: 8000 }).catch(() => {});
+  const sansFiligrane = await atelier.evaluate(() => !document.getElementById('apercu').classList.contains('filigrane') && document.documentElement.classList.contains('atelier'));
+  verifier(sansFiligrane, 'le fichier pour l’imprimeur s’ouvre sans filigrane depuis l’administration');
+  const formatPage = await atelier.evaluate(() => document.getElementById('format-page').textContent);
+  verifier(/154mm 216mm/.test(formatPage), `et avec 3 mm de fond perdu (${formatPage.trim()})`);
+  await atelier.close();
+  const client = await navigateur.newPage();
+  await client.goto(`${BASE}/composer.html?atelier=1#l=` + Buffer.from(JSON.stringify(payee.etat)).toString('base64url'));
+  await client.waitForSelector('#apercu .lp-page'); await client.waitForTimeout(800);
+  verifier(await client.evaluate(() => document.getElementById('apercu').classList.contains('filigrane')), 'sans le mot de passe, ?atelier=1 garde le filigrane');
+  await client.close();
 
   verifier(erreursPage.length === 0, 'aucune erreur JavaScript dans les pages' + (erreursPage.length ? ' : ' + erreursPage.join(' | ') : ''));
   await navigateur.close();
