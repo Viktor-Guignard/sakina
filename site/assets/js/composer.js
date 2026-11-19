@@ -50,8 +50,8 @@
     nuits: ['Les trente nuits', 'الليالي الثلاثون'],
     dix: ['Les dix dernières nuits', 'العشر الأواخر'],
     menu: ['Menu', 'قائمة الطعام'],
-    mention_carte: ['Cette carte porte un verset du Coran : merci de la conserver, ou de la confier à un recyclage respectueux.',
-                    'تحمل هذه البطاقة آيةً من القرآن الكريم: يُرجى حفظها أو التخلّص منها بطريقة لائقة.'],
+    mention_carte: ['Cette pièce porte un verset du Coran : merci de la conserver, ou de la confier à un recyclage respectueux.',
+                    'تحمل هذه القطعة آيةً من القرآن الكريم: يُرجى حفظها أو التخلّص منها بطريقة لائقة.'],
     mention: ['Ce livret contient des versets du Coran et le nom de Dieu : merci de le conserver, ou de le confier à un recyclage respectueux.',
               'يتضمّن هذا الكتيّب آياتٍ من القرآن الكريم واسمَ الله: يُرجى حفظه أو التخلّص منه بطريقة لائقة.'],
   };

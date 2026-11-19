@@ -288,8 +288,8 @@ def accueil():
          t("En France, le mariage civil doit précéder la cérémonie religieuse. Un même livret peut accompagner les deux journées.",
            'في فرنسا، يجب أن يسبق الزواجُ المدني الحفلَ الديني. ويمكن لكتيّب واحد أن يرافق اليومين.')),
         (t('Et pour des funérailles ?', 'وفي حالة الجنازة؟'),
-         t("Les documents de janâza passent avant tout le reste : épreuve en quelques heures, impression au plus vite.",
-           'تُقدَّم أوراق الجنازة على كل ما سواها: مسودة في ساعات قليلة، وطباعة في أسرع وقت.')),
+         t("Les documents de janâza passent avant tout le reste : épreuve en quelques heures. Pour l'impression, nous vous disons avant de commander le délai réellement possible.",
+           'تُقدَّم أوراق الجنازة على كل ما سواها: نسخة المراجعة في ساعات قليلة. أمّا الطباعة، فنخبركم قبل الطلب بالمدّة الممكنة فعلًا.')),
     ]
     qr = ''.join(f'<div class="qr"><p class="qr-q">{q}</p><p class="qr-r">{r}</p></div>' for q, r in questions)
     corps = f'''

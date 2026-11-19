@@ -69,7 +69,7 @@ MODELES = {
     'nuits': {
         'famille': 'livret', 'format': (148, 210), 'ceremonies': ['ramadan'],
         'nom_fr': 'Les 30 nuits de Ramadan', 'nom_ar': 'ثلاثون ليلة من رمضان',
-        'court_fr': 'Une page par nuit : le juz’ du jour, le jeûne, la prière, l’aumône, et une ligne pour soi.',
+        'court_fr': 'Les trente nuits, une à une : le juz’ du jour, le jeûne, la prière, l’aumône, et une ligne pour soi.',
         'court_ar': 'لكل ليلة موضع: جزء اليوم، والصيام، والتراويح، والصدقة، وسطرٌ للنفس.',
         't': ('30 nuits de Ramadan', 'ثلاثون ليلة'),
         'a': ('Un juz’ par jour, et le Coran est lu en entier avant l’Aïd. Cochez au fil des jours, et notez une intention, une invocation, un souvenir.',
@@ -109,7 +109,7 @@ MODELES = {
         'court_fr': 'Le prénom et son sens, la naissance, les invocations, et des pages pour les mots des proches.',
         'court_ar': 'الاسم ومعناه، والولادة، والأدعية، وصفحاتٌ لكلمات الأحباب.',
         't': ('Bienvenue', 'أهلًا وسهلًا'),
-        'a': ('Al-hamdu li-llâh : {noms} est arrivé parmi nous. Voici son prénom, ce qu’il veut dire, et les premiers mots de ceux qui l’aiment.',
+        'a': ('Al-hamdu li-llâh : bienvenue à {noms} ! Voici son prénom, ce qu’il veut dire, et les premiers mots de ceux qui l’aiment.',
               'الحمد لله على قدوم {noms}. هذا اسمه ومعناه، وأولى كلمات من يحبّونه.'),
         'f': ('Que Dieu fasse grandir {noms} dans la paix et la lumière.', 'أنبت الله {noms} نباتًا حسنًا.'),
         'x': ['formule_aqiqa', 'imran38', 'ibrahim40', 'furqan74'], 'n': 2, 'avec_deroule': True,
@@ -180,8 +180,8 @@ MODELES = {
     'remerciement': {
         'famille': 'carte', 'format': (148, 105), 'faces': 2, 'ceremonies': TOUTES,
         'nom_fr': 'Carte de remerciement', 'nom_ar': 'بطاقة شكر',
-        'court_fr': 'A6 à l’italienne, recto verso, à glisser avec un cadeau ou à envoyer après la fête.',
-        'court_ar': 'مقاس A6 بالعرض، على الوجهين، تُرفق بهديةٍ أو تُرسل بعد الحفل.',
+        'court_fr': 'A6 à l’italienne, recto verso, à glisser avec un cadeau ou à envoyer après la cérémonie.',
+        'court_ar': 'مقاس A6 بالعرض، على الوجهين، تُرفق بهديةٍ أو تُرسل بعد المناسبة.',
         'a': ('Jazâkumu-llâhu khayran : que Dieu vous rende chacune de vos attentions.', 'جزاكم الله خيرًا على كلّ لفتةٍ طيّبة.'),
         'a_par': {'janaza': ('Votre soutien nous a portés dans l’épreuve : que Dieu vous en récompense.',
                              'كان سندُكم عونًا لنا في المصاب، جزاكم الله خيرًا.')},

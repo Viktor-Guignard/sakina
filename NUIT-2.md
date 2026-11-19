@@ -22,7 +22,7 @@ signaler « à relire ». Charte Iznik, arc brisé, aucune ressemblance avec liv
 - [x] 7. Pages légales en arabe (brouillons, mêmes réserves).
 - [x] 8. Compositeur sur téléphone : passer de la question à l'aperçu sans se perdre (bouton « Voir l'aperçu »).
 - [x] 9. Poids des pages et vitesse (images, scripts) ; vérifier le premier affichage sur téléphone.
-- [ ] 10. Relecture générale FR/AR des nouveaux libellés (orthographe, accords, sens de lecture).
+- [x] 10. Relecture générale FR/AR des nouveaux libellés (orthographe, accords, sens de lecture).
 - [ ] 11. Référencement (1) : titres et descriptions uniques par page, balise canonique, hreflang FR/AR complet,
         Open Graph et image de partage (générée, au motif), données structurées (Organization, BreadcrumbList, FAQPage, Product).
 - [ ] 12. Référencement (2) : une page par pièce (« Faire-part de mariage musulman », « Livret de nikâh »,
@@ -52,3 +52,4 @@ signaler « à relire ». Charte Iznik, arc brisé, aucune ressemblance avec liv
 - 03 h 11 · Tâche 7 faite : mentions légales, CGV et confidentialité en arabe (ar/), marquées « traduction pour information, le français fait foi » et « à relire », non indexées, liées à leur version française (hreflang). Tests : 32 + 476 réussis, accessibilité 16/16.
 - 03 h 20 · Tâche 8 faite : sur téléphone, un bouton flottant « Voir la pièce ↓ » descend jusqu'à la pièce composée, puis devient « Revenir aux questions ↑ » (FR/AR) ; absent sur ordinateur et dans la vue de relecture. Testé automatiquement. Tests : 32 + 480 réussis, accessibilité 16/16.
 - 04 h 11 · Tâche 9 faite : mesuré sur iPhone en 4G lente et processeur ralenti ×4 : premier affichage 1,4 à 2 s selon la page (objectif Google < 2,5 s). Scripts en « defer », données du compositeur compactées, police du texte préchargée, fichier _headers pour Cloudflare (cache d'un an des fichiers versionnés, en-têtes de sécurité, politique de contenu). Une fois compressées par Cloudflare, les pages font 5 à 10 Ko. Tests : 32 + 480 réussis, accessibilité 16/16.
+- 04 h 25 · Tâche 10 faite : relecture FR/AR des nouveaux libellés. Corrigés : « une page par nuit » (faux, il y en a environ cinq par page), livret du prénom qui supposait un garçon (« est arrivé »), « après la fête » sur la carte aussi proposée pour la janâza, « cette carte » sur le marque-page (→ « cette pièce »), et la promesse de l'accueil pour la janâza (« impression au plus vite ») remplacée par : épreuve en quelques heures, délai d'impression annoncé avant la commande. Tests : 32 + 480 réussis, accessibilité 16/16.
