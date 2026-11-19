@@ -160,6 +160,7 @@ def page(fichier, titre, description, corps, actif='', scripts='', robots=''):
   {alternates}
   <link rel="icon" href="{r}assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="{r}assets/fonts/Amiri-400-arabic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{r}assets/fonts/{t('Manrope-400-latin', 'IBMPlexSansArabic-400-arabic')}.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="{r}assets/css/polices.css?v={version('assets/css/polices.css')}">
   <link rel="stylesheet" href="{r}assets/css/style.css?v={version('assets/css/style.css')}">
 </head>
@@ -554,7 +555,7 @@ def donnees_compositeur():
             'marge': MARGE, 'tva': TVA}
     (SITE / 'assets' / 'js').mkdir(parents=True, exist_ok=True)
     (SITE / 'assets' / 'js' / 'donnees.js').write_text(
-        '/* Généré par build.py — ne pas modifier à la main */\nwindow.SAKINA = ' + json.dumps(data, ensure_ascii=False) + ';\n',
+        '/* Généré par build.py — ne pas modifier à la main */\nwindow.SAKINA = ' + json.dumps(data, ensure_ascii=False, separators=(',', ':')) + ';\n',
         encoding='utf-8')
     # Le serveur recalcule les prix et vérifie les pièces avec les mêmes données.
     serveur = {'tarifs': TARIFS_VISTAPRINT, 'tarifs_papeterie': TARIFS_PAPETERIE, 'quantites_papeterie': QUANTITES_PAPETERIE,
@@ -677,9 +678,9 @@ def composer():
         </div>
       </div>
     </section>'''
-    scripts = (f'<script src="{r}assets/js/donnees.js?v={version("site/assets/js/donnees.js")}"></script>\n'
-               f'<script src="{r}assets/js/composer.js?v={version("assets/js/composer.js")}"></script>\n'
-               f'<script src="{r}assets/js/livret3d.js?v={version("assets/js/livret3d.js")}"></script>')
+    scripts = (f'<script defer src="{r}assets/js/donnees.js?v={version("site/assets/js/donnees.js")}"></script>\n'
+               f'<script defer src="{r}assets/js/composer.js?v={version("assets/js/composer.js")}"></script>\n'
+               f'<script defer src="{r}assets/js/livret3d.js?v={version("assets/js/livret3d.js")}"></script>')
     page('composer.html', t(f'{MARQUE["nom"]} · Composer un livret', 'سكينة · تصميم كتيّب'),
          t('Composez en ligne votre livret de cérémonie : nikâh, aqîqa, hajj, Aïd, janâza… En français, en arabe ou les deux, avec versets et invocations référencés.',
            'صمّم كتيّب مناسبتك عبر الإنترنت: النكاح، العقيقة، الحج، العيد، الجنازة… بالعربية أو بالفرنسية أو بهما معًا، مع آيات وأدعية موثّقة.'),
@@ -721,7 +722,7 @@ def suivi():
         </div>
       </div>
     </section>'''
-    scripts = f'<script src="{r}assets/js/suivi.js?v={version("assets/js/suivi.js")}"></script>'
+    scripts = f'<script defer src="{r}assets/js/suivi.js?v={version("assets/js/suivi.js")}"></script>'
     page('suivi.html', t(f'{MARQUE["nom"]} · Suivi de commande', 'سكينة · متابعة الطلب'),
          t('Le suivi de votre commande Sakîna.', 'متابعة طلبكم لدى سكينة.'), corps, '', scripts, robots='noindex, nofollow')
 
@@ -746,8 +747,33 @@ def admin():
         <p class="aide" id="admin-message" role="status"></p>
       </div>
     </section>'''
-    scripts = f'<script src="assets/js/admin.js?v={version("assets/js/admin.js")}"></script>'
+    scripts = f'<script defer src="assets/js/admin.js?v={version("assets/js/admin.js")}"></script>'
     page('admin.html', 'Sakîna · Administration', 'Administration des commandes.', corps, '', scripts, robots='noindex, nofollow')
+
+
+def entetes():
+    """_headers (Cloudflare Pages) : cache long pour les fichiers versionnés, en-têtes de sécurité.
+    Sans effet sur GitHub Pages, qui l'ignore."""
+    (SITE / '_headers').write_text("""/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/admin.html
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+
+/api/*
+  X-Robots-Tag: noindex
+""", encoding='utf-8')
 
 
 def plan_du_site():
@@ -978,4 +1004,5 @@ if __name__ == '__main__':
     generer('fr')
     generer('ar')
     plan_du_site()
+    entetes()
     print('Pages générées :', len(list(SITE.glob('*.html'))), 'en français,', len(list((SITE / 'ar').glob('*.html'))), 'en arabe')
