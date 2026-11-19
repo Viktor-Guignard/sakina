@@ -775,3 +775,15 @@ html[lang="ar"] .lecture-titre { font-family: var(--f-titre-ar) !important; }
 .lecture-bandeau .btn { flex: none; }
 @media (max-width: 640px) { .lecture-bandeau { flex-direction: column; } }
 @media print { .lecture-bandeau { display: none; } }
+
+/* Téléphone : passer des questions à la pièce composée */
+.vers-apercu { display: none; }
+@media (max-width: 960px) {
+  .vers-apercu { display: block; position: fixed; z-index: 40; left: 50%; bottom: max(14px, env(safe-area-inset-bottom)); transform: translateX(-50%);
+    padding: 11px 20px; white-space: nowrap; border: 0; border-radius: 22px 22px 14px 14px; background: var(--nuit); color: #FFF; font: 600 var(--corps-sm) var(--f-texte);
+    box-shadow: 0 10px 24px -10px rgba(15, 39, 71, .7); cursor: pointer; }
+  html[lang="ar"] .vers-apercu { font-family: var(--f-texte-ar); }
+  .vers-apercu:focus-visible { outline: 2px solid var(--or-clair); outline-offset: 3px; }
+  .mode-lecture .vers-apercu { display: none; }
+}
+@media print { .vers-apercu { display: none !important; } }

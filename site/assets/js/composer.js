@@ -862,6 +862,22 @@
     document.querySelector('.composer').prepend(bandeau);
     document.addEventListener('sakina:compose', () => { bandeau.querySelector('.lecture-refs').innerHTML = refs(); });
   }
+  // Téléphone : les questions et l'aperçu sont l'un sous l'autre. Un bouton flottant passe de l'un à l'autre.
+  const bascule = document.createElement('button');
+  bascule.type = 'button';
+  bascule.className = 'vers-apercu';
+  const LIB = SITE === 'ar' ? ['عرض القطعة ↓', 'العودة إلى الأسئلة ↑'] : ['Voir la pièce ↓', 'Revenir aux questions ↑'];
+  bascule.textContent = LIB[0];
+  document.querySelector('.composer').appendChild(bascule);
+  const zoneApercu = document.querySelector('.compo-apercu');
+  let apercuVisible = false;
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(([e]) => { apercuVisible = e.isIntersecting; bascule.textContent = LIB[apercuVisible ? 1 : 0]; },
+      { rootMargin: '-35% 0px -35% 0px' }).observe(zoneApercu);
+  }
+  bascule.addEventListener('click', () => {
+    (apercuVisible ? form : zoneApercu).scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  });
   window.addEventListener('resize', ajusterZoom);
   remplir();
   composer();

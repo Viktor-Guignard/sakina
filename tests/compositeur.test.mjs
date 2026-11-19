@@ -64,6 +64,19 @@ for (const [nomEcran, ecran] of Object.entries(ecrans)) {
       if (nomEcran === 'iphone' && process.env.CAPTURES && ['livret', 'nuits', 'faire_part', 'certificat'].includes(p) && c === D.modeles[p].ceremonies[0])
         await page.screenshot({ path: join(process.env.CAPTURES, `iphone-${site}-${p}.png`), fullPage: false });
     }
+    // Téléphone : le bouton flottant mène à la pièce ; ordinateur : il n'existe pas à l'écran.
+    {
+      await page.goto(`${BASE}/${site === 'ar' ? 'ar/' : ''}composer.html?c=aqiqa`);
+      await page.waitForSelector('#apercu .lp-page');
+      const visible = await page.isVisible('.vers-apercu');
+      let mene = true;
+      if (visible) {
+        await page.click('.vers-apercu');
+        await page.waitForTimeout(1100);
+        mene = await page.evaluate(() => { const r = document.querySelector('.compo-apercu').getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; });
+      }
+      if (visible === (nomEcran === 'iphone') && mene) ok++; else { ko++; echecs.push(`${nomEcran} · site ${site} · bouton « Voir la pièce » : visible=${visible}, mène à la pièce=${mene}`); }
+    }
     // La 3D, une fois par écran et par site.
     await page.goto(`${BASE}/${site === 'ar' ? 'ar/' : ''}composer.html?c=nikah&p=livret`);
     await page.waitForSelector('#apercu .lp-page');
