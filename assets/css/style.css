@@ -752,3 +752,13 @@ html[lang="ar"] .recap-titre { font-family: var(--f-titre-ar); }
 .famille-piece:hover .famille-visuel, .famille-piece:focus-visible .famille-visuel { transform: translateY(-6px); }
 .famille-nom { font-size: var(--corps-sm); font-weight: 600; }
 @media (max-width: 640px) { .famille-visuel { width: calc(var(--l) * .82px); } .famille-nom { font-size: var(--corps-xs); } }
+
+/* Page des motifs : la papeterie de chaque motif */
+.declinaison { padding: 26px 0; border-top: 1px solid var(--filet); }
+.declinaison:first-of-type { border-top: 0; }
+.declinaison h3 { margin: 0; font: 400 var(--corps-lg) var(--f-titre); color: var(--nuit); }
+html[lang="ar"] .declinaison h3 { font-family: var(--f-titre-ar); }
+.declinaison > p { margin: 14px 0 0; }
+.famille-compacte { justify-content: flex-start; margin-top: 16px; }
+.famille-compacte .famille-visuel { width: calc(var(--l) * 1.05px); }
+@media (max-width: 640px) { .famille-compacte .famille-visuel { width: calc(var(--l) * .62px); } }

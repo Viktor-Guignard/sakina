@@ -17,7 +17,7 @@ signaler « à relire ». Charte Iznik, arc brisé, aucune ressemblance avec liv
 - [x] 2. « Quelle pièce ? » : une petite vignette de chaque pièce (livret, carte, menu, marque-page…).
 - [x] 3. Commande : récapitulatif clair avant le paiement (pièce, pages, quantité, prix, étapes : épreuve → validation → impression).
 - [x] 4. Accueil : une section qui montre la papeterie assortie (même motif sur livret, faire-part, menu, marque-page).
-- [ ] 5. Page « Motifs » : chaque motif décliné sur plusieurs pièces.
+- [x] 5. Page « Motifs » : chaque motif décliné sur plusieurs pièces.
 - [ ] 6. Lien de relecture : une vue « lecture seule » simple pour l'imam (sans les questions), avec le filigrane.
 - [ ] 7. Pages légales en arabe (brouillons, mêmes réserves).
 - [ ] 8. Compositeur sur téléphone : passer de la question à l'aperçu sans se perdre (bouton « Voir l'aperçu »).
@@ -47,3 +47,4 @@ signaler « à relire ». Charte Iznik, arc brisé, aucune ressemblance avec liv
 - 00 h 21 · Tâche 2 faite : chaque pièce a sa vignette à l'échelle (livret, carte, menu, rond, marque-page, certificat), aux couleurs du motif choisi, redessinée quand le motif change. Tests : 32 + 476 réussis.
 - 01 h 11 · Tâche 3 faite : récapitulatif avant paiement (pièce, cérémonie et noms, format et pages, langue, quantité, prix) et les quatre étapes (paiement, épreuve, accord, impression) ; pour une pièce sur devis, le bouton devient « Demander mon devis ». Corrigé au passage : sur ordinateur, la colonne des questions restait figée et cachait le bas du formulaire de commande ; elle défile maintenant. Tests : 32 + 476 réussis.
 - 01 h 21 · Tâche 4 faite : l'accueil montre « Toute la papeterie, sous un même motif » (livret, faire-part, menu, marque-page, étiquette), posés à plat et à l'échelle, chacun mène au compositeur. Test d'accessibilité gardé dans le projet (tests/accessibilite.test.mjs) : 14 pages FR/AR sans erreur. Tests : 32 + 476 réussis.
+- 02 h 11 · Tâche 5 faite : la page Motifs montre, pour chacun des 8 motifs, sa papeterie complète (livret, faire-part, menu, marque-page, étiquette) et un lien « Composer avec ce motif ». Corrigé au passage : identifiants SVG en double sur l'accueil. Tests : 32 + 476 réussis, accessibilité 14/14.

@@ -255,12 +255,12 @@ def fil_vie():
         <div class="annee"><p class="annee-titre">{t("Et chaque année", "وفي كل عام")}</p><div class="annee-saisons">{annee}</div></div>'''
 
 
-def famille_papeterie(cle='alhambra', ceremonie='nikah'):
+def famille_papeterie(cle='alhambra', ceremonie='nikah', compacte=False):
     """Les pièces d'une même famille, posées à plat côte à côte, à l'échelle de leur format."""
     m = MOTIFS[cle]
     phrase, noms = m['phrase'], m['noms'] if L == 'fr' else LIVRETS[ceremonie]['noms_ar']
     date = chiffres('14 . 06 . 2027')
-    couv = couverture(cle, dict(m, noms=noms, titre=m['titre'] if L == 'fr' else LIVRETS[ceremonie]['titre_ar'], date=date))
+    couv = couverture(f'{cle}-famille', dict(m, noms=noms, titre=m['titre'] if L == 'fr' else LIVRETS[ceremonie]['titre_ar'], date=date))
     pieces = [('livret', couv, 148, 210), ('faire_part', piece('faire_part', cle, m, phrase, noms, date), 105, 148),
               ('menu', piece('menu', cle, m, phrase, noms), 99, 210), ('marque_page', piece('marque_page', cle, m, phrase, noms), 50, 150),
               ('etiquette', piece('etiquette', cle, m, phrase, noms), 50, 50)]
@@ -268,7 +268,7 @@ def famille_papeterie(cle='alhambra', ceremonie='nikah'):
         f'<a class="famille-piece{" famille-rond" if k == "etiquette" else ""}" href="composer.html?c={ceremonie}&amp;p={k}&amp;m={cle}" style="--l:{l};--h:{h}">'
         f'<span class="famille-visuel">{svg}</span><span class="famille-nom">{escape(MODELES[k]["nom_ar"] if L == "ar" else MODELES[k]["nom_fr"])}</span></a>'
         for k, svg, l, h in pieces)
-    return f'<div class="famille">{items}</div>'
+    return f'<div class="famille{" famille-compacte" if compacte else ""}">{items}</div>'
 
 
 def accueil():
@@ -463,6 +463,13 @@ def page_ceremonie(c):
 
 def motifs():
     cartes = ''.join(carte_motif(k) for k in MOTIFS)
+    # Pour chaque motif, sa papeterie, avec la première cérémonie à laquelle il est conseillé.
+    def ceremonie_de(k):
+        return next((c['id'] for c in CEREMONIES if k in c['motifs']), 'nikah')
+    declinaisons = ''.join(
+        f'<div class="declinaison" id="papeterie-{k}"><h3>{escape(nom_motif(k))}</h3>{famille_papeterie(k, ceremonie_de(k), compacte=True)}'
+        f'<p><a href="composer.html?m={k}&amp;c={ceremonie_de(k)}">{t("Composer avec ce motif", "صمّموا بهذه الزخرفة")} {t("→", "←")}</a></p></div>'
+        for k in MOTIFS)
     corps = f'''
     <section class="section">
       <div class="conteneur">
@@ -473,6 +480,15 @@ def motifs():
                               'كل زخرفة تناسب جميع المناسبات: الألوان والنصوص واللغات والآيات تتغيّر بخطوات قليلة. ولا تصوّر أيٌّ منها إنسانًا ولا حيوانًا ولا مكانًا مقدّسًا.')}</p>
         </div>
         <div class="grille-motifs">{cartes}</div>
+      </div>
+    </section>
+    <section class="section section-sable">
+      <div class="conteneur">
+        <div class="entete-section">
+          <h2>{t('Chaque motif, toute sa papeterie', 'كلّ زخرفة بأوراقها كاملة')}</h2>
+          <p class="chapo">{t('Le même décor sur le livret, le faire-part, le menu, le marque-page et les étiquettes.', 'الزخرفة نفسها على الكتيّب وبطاقة الإعلان وقائمة الطعام وفاصل الكتاب والملصقات.')}</p>
+        </div>
+        {declinaisons}
       </div>
     </section>'''
     page('motifs.html', t(f'{MARQUE["nom"]} · Les motifs', 'سكينة · الزخارف'),
