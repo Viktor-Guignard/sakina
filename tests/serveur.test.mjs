@@ -48,7 +48,7 @@ function webhook(evenement, secret = WHSEC) {
 const admin = (chemin, options = {}) => fetch(`${BASE}/api/admin/${chemin}`, { ...options, headers: { Authorization: `Bearer ${ADMIN}`, 'Content-Type': 'application/json' } });
 
 // ---------------------------------------------------------------- serveur local
-const env = { ...process.env, SAKINA_API: '', NO_PROXY: '127.0.0.1,localhost', no_proxy: '127.0.0.1,localhost', WRANGLER_SEND_METRICS: 'false' };
+const env = { ...process.env, SAKINA_API: '', SAKINA_SITE: BASE, NO_PROXY: '127.0.0.1,localhost', no_proxy: '127.0.0.1,localhost', WRANGLER_SEND_METRICS: 'false' };
 execFileSync('python3', ['build.py'], { cwd: RACINE, env, stdio: 'inherit' });
 const wrangler = join(RACINE, 'node_modules', '.bin', 'wrangler');
 execFileSync(wrangler, ['d1', 'migrations', 'apply', 'sakina', '--local', '--persist-to', ETAT], { cwd: RACINE, env, stdio: 'ignore' });
@@ -157,6 +157,13 @@ try {
   verifier(histoAvant >= 3, `chaque étape écrit au client (${histoAvant} courriels prêts, non envoyés sans clé Brevo)`);
   const rap = await (await admin('rappels', { method: 'POST' })).json();
   verifier(Array.isArray(rap.relances) && !rap.relances.includes(id), 'rappels : une épreuve validée n’est pas relancée');
+
+  console.log('Page introuvable');
+  const p404 = await fetch(`${BASE}/une/adresse/qui/n-existe/pas`);
+  const t404 = await p404.text();
+  verifier(p404.status === 404 && t404.includes('<base href="/">') && /n’existe pas/.test(t404), 'une adresse inconnue renvoie la page 404 (statut 404, styles et liens justes)');
+  const p404ar = await fetch(`${BASE}/ar/n-existe-pas`);
+  verifier(p404ar.status === 404 && (await p404ar.text()).includes('هذه الصفحة غير موجودة'), 'et en arabe sous ar/');
 
   console.log('Page Contact');
   await page.goto(`${BASE}/contact.html`);

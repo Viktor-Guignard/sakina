@@ -9,7 +9,9 @@
     "test": "node tests/serveur.test.mjs && node tests/compositeur.test.mjs && node tests/accessibilite.test.mjs && node tests/referencement.test.mjs",
     "test:compositeur": "node tests/compositeur.test.mjs",
     "test:accessibilite": "node tests/accessibilite.test.mjs",
-    "test:referencement": "node tests/referencement.test.mjs"
+    "test:referencement": "node tests/referencement.test.mjs",
+    "verifier": "node tools/verifier.mjs",
+    "image-partage": "node tools/image-partage.mjs"
   },
   "devDependencies": {
     "axe-core": "^4.10.2",

@@ -833,3 +833,8 @@ html[lang="ar"] .lecture-titre { font-family: var(--f-titre-ar) !important; }
 
 .admin-courriel { width: 100%; height: 640px; margin-top: 10px; border: 1px solid var(--filet); border-radius: 14px; background: #EEF4F1; }
 .admin-detail select { padding: 8px 10px; border: 1px solid var(--filet); border-radius: 10px; font: inherit; }
+
+/* Page introuvable */
+.introuvable { max-width: 640px; text-align: center; }
+.introuvable-arc { width: 64px; height: 77px; color: var(--nuit); }
+.introuvable-liens { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 24px; margin: 26px 0 0; padding: 0; list-style: none; }

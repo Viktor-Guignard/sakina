@@ -12,7 +12,7 @@ const RACINE = join(dirname(fileURLToPath(import.meta.url)), '..'), SITE = join(
 const BASE = 'https://exemple.sakina.test';
 execFileSync('python3', ['build.py'], { cwd: RACINE, env: { ...process.env, SAKINA_SITE: BASE }, stdio: 'ignore' });
 
-const PRIVEES = ['suivi.html', 'admin.html', 'relecture.html', 'mentions-legales.html', 'cgv.html', 'confidentialite.html'];
+const PRIVEES = ['suivi.html', 'admin.html', 'relecture.html', 'mentions-legales.html', 'cgv.html', 'confidentialite.html', '404.html'];
 const fichiers = [...readdirSync(SITE).filter(f => f.endsWith('.html')), ...readdirSync(join(SITE, 'ar')).filter(f => f.endsWith('.html')).map(f => 'ar/' + f)];
 const plan = readFileSync(join(SITE, 'sitemap.xml'), 'utf8');
 const attr = (html, re) => (html.match(re) || [])[1];

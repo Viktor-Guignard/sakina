@@ -1,57 +1,64 @@
-# Service de commande Sakîna (Cloudflare)
+# Sakîna : mise en ligne du service de commande
 
-Le site reste généré par `python3 build.py`. Le service de commande vit dans `functions/`
-(Cloudflare Pages Functions) avec une base D1 (`migrations/`). **Rien n'est en ligne** :
-tout a été testé en local (`npm test`, faux Stripe, aucun courriel envoyé).
+Tout est prêt et testé en local (`npm test`). Il ne reste qu'à **créer les comptes et poser les clés**,
+ensemble (Viktor + Claude). Rien n'est en ligne tant que ce n'est pas fait.
+
+`npm run verifier` affiche à tout moment ce qui est prêt (✓), ce qui manque (✗) et ce qui reste à décider (•).
+
+## Ce qui existe déjà
+
+- **Site** : `python3 build.py` → `site/` (FR + AR), avec `_headers` (cache, sécurité), `404.html`, `sitemap.xml`, `robots.txt`.
+- **Service** (`functions/`, Cloudflare Pages Functions) et **base** D1 (`migrations/`) :
+  commandes, paiement Stripe Checkout, webhook signé, suivi client et validation de l'épreuve,
+  administration (`admin.html` : commandes, messages, aperçu des courriels, relance des épreuves),
+  formulaire de contact.
+- **Courriels** (`functions/_lib/courriel.js`) : 10 messages clients FR/AR + alertes à l'administration.
+  Sans clé Brevo, rien ne part : chaque envoi est noté dans l'historique de la commande.
+- **Rappel d'épreuve** chaque matin : `.github/workflows/rappels.yml` (inactif sans secrets).
+- **Tests** : `npm test` (commande de bout en bout avec un faux Stripe, compositeur, accessibilité, référencement).
+
+## Ce qu'il reste à faire (dans l'ordre)
+
+1. **Compte Cloudflare** dédié à Sakîna, puis `npx wrangler login`.
+2. **Base** : `npx wrangler d1 create sakina` → recopier `database_id` dans `wrangler.toml`,
+   puis `npx wrangler d1 migrations apply sakina --remote`.
+3. **Projet Pages** relié au dépôt GitHub `Viktor-Guignard/sakina`, branche `main` :
+   - commande de build : `SAKINA_API= SAKINA_SITE=https://<domaine> python3 build.py`
+   - dossier publié : `site`
+4. **Réglages** dans `wrangler.toml` (`[vars]`) : `SITE_URL` (le domaine), `ADMIN_EMAIL`, `EXPEDITEUR_EMAIL`,
+   `LIVRAISON_CENTIMES` (ex. `690` pour 6,90 €), `PAYS_LIVRAISON`.
+5. **Clés secrètes** (jamais dans le dépôt) : `npx wrangler pages secret put NOM --project-name sakina`
+   - `ADMIN_JETON` : mot de passe de l'administration, 16 caractères au moins
+   - `SEL_IP` : une phrase au hasard
+   - `STRIPE_SECRET_KEY` : compte Stripe **de Sakîna** (distinct de livretsdemesse)
+   - `STRIPE_WEBHOOK_SECRET` : voir l'étape 6
+   - `BREVO_API_KEY` : envoi des courriels (compte Brevo, domaine d'envoi vérifié)
+6. **Stripe** : ajouter un webhook vers `https://<domaine>/api/stripe/webhook`, événements
+   `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.expired` ;
+   recopier son secret (`whsec_…`) dans `STRIPE_WEBHOOK_SECRET`. Faire d'abord un essai en mode test.
+7. **Cloudflare Access** sur `/admin.html` et `/api/admin/*` (seule l'adresse de Viktor) : double protection.
+8. **Rappels** : dans GitHub, Settings > Secrets, ajouter `SAKINA_URL` et `ADMIN_JETON`.
+9. **Domaine** : le relier au projet Pages ; puis Google Search Console (envoyer `sitemap.xml`).
+10. **Avant la première vente** : pages légales validées par un juriste (`legal.py`), textes religieux relus
+    (`relecture.html`), prix de la papeterie relevés (`modeles.py`, `TARIFS_PAPETERIE`), imprimeur choisi.
 
 ## Parcours d'une commande
 
-1. Le client compose sa pièce, clique « Le faire imprimer », donne nom + e-mail.
-2. Le serveur **recalcule le prix** (mêmes grilles que l'écran, `functions/_lib/donnees.js`
-   généré par `build.py`), enregistre la commande, ouvre **Stripe Checkout** (adresse de
-   livraison et téléphone recueillis par Stripe). Pièce sans grille de prix → **devis**.
-3. Stripe prévient le webhook → statut « payée », courriel au client et à l'administration.
-4. Dans `admin.html` : ouvrir la pièce, la faire relire, coller le lien de l'**épreuve**,
-   « → Épreuve à valider » (le client reçoit un lien vers `suivi.html`).
-5. Le client **valide** l'épreuve ou demande une correction. Rien n'est imprimé avant.
-6. Administration : « → En impression », puis « → Expédiée » avec le numéro de colis.
-
-Statuts et passages permis : `functions/_lib/statuts.js`.
+Composer → « Le faire imprimer » → nom + e-mail → paiement Stripe (adresse de livraison recueillie par Stripe)
+→ webhook : « payée » → l'administration prépare l'épreuve (fichier sans filigrane : « Fichier pour l'imprimeur »)
+et colle le lien de l'épreuve → le client valide ou demande une correction → « en impression » → « expédiée »
+(avec numéro de suivi). Pièce sans prix : demande de devis → l'administration fixe le prix → le client paie
+depuis sa page de suivi. Statuts et passages permis : `functions/_lib/statuts.js`.
 
 ## Routes
 
 | Route | Rôle |
 |---|---|
-| `POST /api/commandes` | créer une commande (paiement ou devis) |
+| `POST /api/commandes` | créer une commande (paiement ou devis) ; prix toujours recalculé côté serveur |
 | `GET/POST /api/commandes/:id?j=…` | suivi client ; valider/corriger l'épreuve ; payer un devis |
 | `POST /api/stripe/webhook` | confirmation Stripe (signature vérifiée, événements dédoublonnés) |
-| `/api/admin/commandes[/:id]` | liste, détail, changement de statut (mot de passe `ADMIN_JETON`) |
+| `POST /api/contact` | message de la page Contact |
+| `/api/admin/…` | commandes, messages, courriels (aperçu), rappels — mot de passe `ADMIN_JETON` |
 
-Protections : prix toujours recalculé côté serveur, montant payé vérifié, jeton secret par
-commande, 10 commandes/heure/IP (seule une empreinte salée de l'IP est gardée), piège à robots,
-taille des envois limitée.
-
-## Tester en local
-
-```
-npm install
-npm test
-```
-
-## Mise en ligne (à faire avec Viktor, rien n'est fait)
-
-1. Compte Cloudflare au nom de Sakîna ; `npx wrangler login`.
-2. `npx wrangler d1 create sakina` → recopier l'identifiant dans `wrangler.toml`,
-   puis `npx wrangler d1 migrations apply sakina --remote`.
-3. Projet Pages relié au dépôt : commande de build `SAKINA_API= python3 build.py`, dossier `site`.
-   Mettre `SITE_URL` sur l'adresse définitive.
-4. Secrets : `npx wrangler pages secret put STRIPE_SECRET_KEY` (puis `STRIPE_WEBHOOK_SECRET`,
-   `ADMIN_JETON` (16 caractères au moins), `SEL_IP`, et `BREVO_API_KEY` pour les courriels).
-5. Stripe (compte Sakîna distinct) : webhook vers `https://…/api/stripe/webhook`, événements
-   `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.expired`.
-6. Cloudflare Access sur `/admin.html` et `/api/admin/*` (double protection).
-7. Décider : frais de livraison (`LIVRAISON_CENTIMES`), adresses `ADMIN_EMAIL` / `EXPEDITEUR_EMAIL`,
-   prix de la papeterie (`TARIFS_PAPETERIE` dans `modeles.py`), CGV et mentions légales.
-
-Sans `SAKINA_API` au build (cas de GitHub Pages aujourd'hui), le bouton « Le faire imprimer »
-affiche seulement « La commande en ligne ouvre bientôt ».
+Protections : prix recalculé, montant payé vérifié, jeton secret par commande, limites par adresse IP
+(seule une empreinte salée est gardée), piège à robots, taille des envois limitée, en-têtes de sécurité.

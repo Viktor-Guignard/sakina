@@ -980,11 +980,35 @@ def contact():
          jsonld=[fil_ariane([(t('Accueil', 'الرئيسية'), ''), (t('Contact', 'تواصلوا معنا'), 'contact.html')])])
 
 
+def page_404():
+    """Page introuvable (Cloudflare Pages sert 404.html, et ar/404.html pour le site arabe)."""
+    r = racine()
+    liens = [('index.html', t('Accueil', 'الرئيسية')), ('composer.html', t('Composer une pièce', 'صمّموا قطعة')),
+             ('papeterie.html', t('Livrets et papeterie', 'الكتيّبات والأوراق')), ('questions-frequentes.html', t('Questions fréquentes', 'أسئلة شائعة'))]
+    corps = f'''
+    <section class="section">
+      <div class="conteneur introuvable">
+        <svg class="introuvable-arc" viewBox="0 0 40 48" aria-hidden="true"><path d="{arc_brise(2, 2, 36, 44)}Z" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <polygon points="{etoile(20, 27, 6)}" fill="#2E9C95" opacity=".6"/></svg>
+        <h1>{t('Cette page n’existe pas', 'هذه الصفحة غير موجودة')}</h1>
+        <p class="chapo">{t('Le lien est peut-être incomplet, ou la page a changé de place.', 'لعلّ الرابط ناقص، أو انتقلت الصفحة إلى مكانٍ آخر.')}</p>
+        <ul class="introuvable-liens">{''.join(f'<li><a href="{r}{"ar/" if L == "ar" else ""}{h}">{escape(x)}</a></li>' for h, x in liens)}</ul>
+      </div>
+    </section>'''
+    page('404.html', t('Page introuvable · Sakîna', 'الصفحة غير موجودة · سكينة'), t('Page introuvable.', 'الصفحة غير موجودة.'), corps, '',
+         robots='noindex')
+    # Servie à n'importe quelle adresse : une base fixe pour que styles et liens restent justes.
+    from urllib.parse import urlparse
+    chemin = urlparse(BASE).path.rstrip('/') + ('/ar/' if L == 'ar' else '/')
+    f = SITE / ('ar/404.html' if L == 'ar' else '404.html')
+    f.write_text(f.read_text(encoding='utf-8').replace('<head>', f'<head>\n  <base href="{chemin}">', 1), encoding='utf-8')
+
+
 def plan_du_site():
     """sitemap.xml et robots.txt. L'adresse vient de SAKINA_SITE (par défaut, l'adresse provisoire sur GitHub Pages).
     Les pages privées (suivi, administration, brouillons) sont exclues ; le reste du site reste indexable comme avant."""
     base = BASE
-    prives = {'suivi.html', 'admin.html', 'relecture.html', 'mentions-legales.html', 'cgv.html', 'confidentialite.html'}
+    prives = {'suivi.html', 'admin.html', 'relecture.html', 'mentions-legales.html', 'cgv.html', 'confidentialite.html', '404.html'}
     urls = sorted(p.relative_to(SITE).as_posix() for p in SITE.rglob('*.html') if p.name not in prives)
     (SITE / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
         + ''.join(f'  <url><loc>{base}/{u}</loc></url>\n' for u in urls) + '</urlset>\n', encoding='utf-8')
@@ -1191,6 +1215,7 @@ def generer(langue):
     questions_frequentes()
     comment_ca_marche()
     contact()
+    page_404()
     if langue == 'fr':
         charte()
         admin()
