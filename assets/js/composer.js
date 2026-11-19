@@ -114,10 +114,11 @@
     } catch (e) { return null; }
   }
 
-  function versLien(etat) {
+  /** Lien vers la pièce. Pour la relecture (imam, proches) : ?lecture=1, une vue simple sans les questions. */
+  function versLien(etat, lecture = false) {
     const utf8 = new TextEncoder().encode(JSON.stringify(etat));
     let b = ''; utf8.forEach(o => { b += String.fromCharCode(o); });
-    return location.origin + location.pathname + '#l=' + btoa(b).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    return location.origin + location.pathname + (lecture ? '?lecture=1' : '') + '#l=' + btoa(b).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   }
 
   const params = new URLSearchParams(location.search);
@@ -749,8 +750,8 @@
 
   const message = texte => { document.getElementById('message').textContent = texte; };
   document.getElementById('partager').addEventListener('click', async () => {
-    const lien = versLien(etat);
-    history.replaceState(null, '', lien);
+    const lien = versLien(etat, true);
+    history.replaceState(null, '', versLien(etat));
     try { await navigator.clipboard.writeText(lien); message(UI.copie); }
     catch (e) {
       // Presse-papiers refusé : on affiche le lien, déjà sélectionné, à copier soi-même.
@@ -845,6 +846,21 @@
     try { j = sessionStorage['sakina-admin']; } catch (e) { /* stockage indisponible */ }
     if (j) fetch(D.api + '/api/admin/commandes?statut=annulee', { headers: { Authorization: 'Bearer ' + j } })
       .then(r => { if (r.ok) { apercu.classList.remove('filigrane'); document.documentElement.classList.add('atelier'); composer(); } }).catch(() => {});
+  }
+  // Vue de relecture : la pièce seule, en grand, avec la liste des textes religieux à vérifier.
+  if (params.get('lecture')) {
+    document.documentElement.classList.add('mode-lecture');
+    const ar = SITE === 'ar';
+    const bandeau = document.createElement('div');
+    bandeau.className = 'lecture-bandeau';
+    const refs = () => listeTextes().filter(k => etat.textes.includes(k)).map(k => `<li>${esc(ar ? D.textes[k].ref_ar : D.textes[k].ref_fr)}</li>`).join('');
+    bandeau.innerHTML = `<div><p class="lecture-titre">${ar ? 'نسخة للمراجعة' : 'Pièce à relire'}</p>
+      <p>${ar ? 'راجعوا الآيات والأدعية ونطقها وترجمتها، ثم أرسلوا ملاحظاتكم إلى من أرسل إليكم هذا الرابط.'
+              : 'Merci de vérifier les versets et invocations (vocalisation, référence, traduction), puis d’envoyer vos remarques à la personne qui vous a transmis ce lien.'}</p>
+      <ul class="lecture-refs"></ul></div>
+      <a class="btn btn-contour" href="${location.pathname}${location.hash}">${ar ? 'تعديل القطعة' : 'Modifier la pièce'}</a>`;
+    document.querySelector('.composer').prepend(bandeau);
+    document.addEventListener('sakina:compose', () => { bandeau.querySelector('.lecture-refs').innerHTML = refs(); });
   }
   window.addEventListener('resize', ajusterZoom);
   remplir();

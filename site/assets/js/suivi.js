@@ -26,7 +26,7 @@
   function lienPiece(etat) {
     const utf8 = new TextEncoder().encode(JSON.stringify(etat));
     let b = ''; utf8.forEach(o => { b += String.fromCharCode(o); });
-    return `composer.html#l=${btoa(b).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')}`;
+    return `composer.html?lecture=1#l=${btoa(b).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')}`;
   }
 
   function afficher(c) {

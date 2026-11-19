@@ -122,7 +122,7 @@ try {
   verifier(saut.status === 409, 'on ne saute pas d’étape (épreuve → expédiée refusé)');
   await page.reload();
   await page.waitForSelector('#suivi-epreuve:not([hidden])');
-  verifier((await page.getAttribute('#voir-epreuve', 'href')).startsWith('composer.html#l='), 'le client peut ouvrir l’épreuve');
+  verifier((await page.getAttribute('#voir-epreuve', 'href')).startsWith('composer.html?lecture=1#l='), 'le client peut ouvrir l’épreuve');
   await page.click('#valider');
   await page.waitForFunction(() => document.getElementById('suivi-statut').textContent.includes('validée'));
   verifier(true, 'le client valide l’épreuve');

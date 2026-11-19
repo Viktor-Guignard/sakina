@@ -762,3 +762,16 @@ html[lang="ar"] .declinaison h3 { font-family: var(--f-titre-ar); }
 .famille-compacte { justify-content: flex-start; margin-top: 16px; }
 .famille-compacte .famille-visuel { width: calc(var(--l) * 1.05px); }
 @media (max-width: 640px) { .famille-compacte .famille-visuel { width: calc(var(--l) * .62px); } }
+
+/* Vue de relecture (?lecture=1) : la pièce seule, en grand */
+.mode-lecture .composer-guide { display: none; }
+.mode-lecture .composer-grille { grid-template-columns: 1fr; max-width: 980px; }
+.lecture-bandeau { display: flex; gap: 18px; align-items: flex-start; justify-content: space-between; width: min(980px, 100% - 32px); margin: 0 auto 22px;
+  padding: 18px 22px; border-radius: var(--r-lg); background: var(--blanc); box-shadow: var(--ombre); }
+.lecture-bandeau p { margin: 0 0 6px; color: var(--encre-douce); font-size: var(--corps-sm); }
+.lecture-titre { font: 400 var(--corps-lg) var(--f-titre) !important; color: var(--nuit) !important; }
+html[lang="ar"] .lecture-titre { font-family: var(--f-titre-ar) !important; }
+.lecture-refs { margin: 6px 0 0; padding-inline-start: 18px; font-size: var(--corps-sm); font-weight: 600; color: var(--or-fonce); }
+.lecture-bandeau .btn { flex: none; }
+@media (max-width: 640px) { .lecture-bandeau { flex-direction: column; } }
+@media print { .lecture-bandeau { display: none; } }
