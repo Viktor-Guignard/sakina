@@ -19,7 +19,7 @@ from contenu import MARQUE, CEREMONIES, MOTIFS
 from contenu_ar import MARQUE_AR, CEREMONIES_AR, MOTIFS_AR
 from couvertures import couverture, etoile, arc_brise, motif, piece
 from livrets import TEXTES, LIVRETS, TARIFS_VISTAPRINT, MARGE, TVA
-from legal import PAGES_LEGALES, PAGES_LEGALES_AR
+from legal import PAGES_LEGALES, PAGES_LEGALES_AR, LEGAL_VALIDE
 from pieces import PIECES
 from faq import FAQ
 from modeles import MODELES, JUZ, OCCASIONS, TARIFS_PAPETERIE, QUANTITES_PAPETERIE
@@ -156,6 +156,9 @@ def page(fichier, titre, description, corps, actif='', scripts='', robots='', js
     charte_lien = (f'<li><a href="../charte-graphique.html" lang="fr">Charte graphique</a></li>' if L == 'ar'
                    else '<li><a href="charte-graphique.html">Charte graphique</a></li>')
     nom = t(MARQUE['nom'], MARQUE_AR['nom'])
+    # Pages légales : liées dans le pied de page seulement une fois validées (legal.py, LEGAL_VALIDE).
+    legaux = ('<span class="pied-legal">' + ' · '.join(f'<a href="{f}">{escape((PAGES_LEGALES_AR if L == "ar" else PAGES_LEGALES)[f][0])}</a>'
+              for f in ('mentions-legales.html', 'cgv.html', 'confidentialite.html')) + '</span>') if LEGAL_VALIDE else ''
 
     html = f'''<!DOCTYPE html>
 <html lang="{L}" dir="{t('ltr', 'rtl')}">
@@ -210,15 +213,20 @@ def page(fichier, titre, description, corps, actif='', scripts='', robots='', js
         </div>
         <div><h4>{t('Cérémonies', 'المناسبات')}</h4><ul>{pied_cer}</ul></div>
         <div><h4>&nbsp;</h4><ul>{pied_cer2}</ul></div>
-        <div><h4>{nom}</h4><ul>
-          <li><a href="composer.html">{t('Composer un livret', 'صمّم كتيّبًا')}</a></li>
+        <div><h4>{t('Composer', 'التصميم')}</h4><ul>
+          <li><a href="composer.html">{t('Composer une pièce', 'صمّموا قطعة')}</a></li>
+          <li><a href="papeterie.html">{t('Livrets et papeterie', 'الكتيّبات والأوراق')}</a></li>
           <li><a href="motifs.html">{t('Les motifs', 'الزخارف')}</a></li>
+          <li><a href="comment-ca-marche.html">{t('Comment ça marche', 'كيف يجري ذلك')}</a></li>
+        </ul></div>
+        <div><h4>{nom}</h4><ul>
           <li><a href="respect.html">{t('Notre éthique', 'ميثاقنا')}</a></li>
-          {charte_lien}
+          <li><a href="questions-frequentes.html">{t('Questions fréquentes', 'أسئلة شائعة')}</a></li>
           <li><a href="contact.html">{t('Nous écrire', 'راسلونا')}</a></li>
+          {charte_lien}
         </ul></div>
       </div>
-      <div class="pied-bas"><span>© {chiffres('2026')} {nom}</span><span class="{t('ar', '')}" lang="{t('ar', 'fr')}">{t(MARQUE["nom_ar"], MARQUE["nom"])}</span></div>
+      <div class="pied-bas"><span>© {chiffres('2026')} {nom}</span>{legaux}<span class="{t('ar', '')}" lang="{t('ar', 'fr')}">{t(MARQUE["nom_ar"], MARQUE["nom"])}</span></div>
     </div>
   </footer>
 {CHOIX_LANGUE.format(logo=logo('langue-choix-signe'), fr=url_fr, ar=url_ar)}
@@ -1008,7 +1016,9 @@ def plan_du_site():
     """sitemap.xml et robots.txt. L'adresse vient de SAKINA_SITE (par défaut, l'adresse provisoire sur GitHub Pages).
     Les pages privées (suivi, administration, brouillons) sont exclues ; le reste du site reste indexable comme avant."""
     base = BASE
-    prives = {'suivi.html', 'admin.html', 'relecture.html', 'mentions-legales.html', 'cgv.html', 'confidentialite.html', '404.html'}
+    prives = {'suivi.html', 'admin.html', 'relecture.html', '404.html'}
+    if not LEGAL_VALIDE:
+        prives |= {'mentions-legales.html', 'cgv.html', 'confidentialite.html'}
     urls = sorted(p.relative_to(SITE).as_posix() for p in SITE.rglob('*.html') if p.name not in prives)
     (SITE / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
         + ''.join(f'  <url><loc>{base}/{u}</loc></url>\n' for u in urls) + '</urlset>\n', encoding='utf-8')
@@ -1065,13 +1075,13 @@ def pages_legales():
         corps = f'''
     <section class="section">
       <div class="conteneur legal">
-        <p class="legal-brouillon">{t('Brouillon à valider par un juriste : les passages entre crochets sont à compléter.',
-          'مسودّة تنتظر مراجعة محامٍ، وما بين المعقوفين يُستكمل. هذه ترجمةٌ للاطّلاع، والنصّ الفرنسي هو المعتمد.')}</p>
+        {'' if LEGAL_VALIDE else '<p class="legal-brouillon">'}{'' if LEGAL_VALIDE else t('Brouillon à valider par un juriste : les passages entre crochets sont à compléter.',
+          'مسودّة تنتظر مراجعة محامٍ، وما بين المعقوفين يُستكمل. هذه ترجمةٌ للاطّلاع، والنصّ الفرنسي هو المعتمد.')}{'' if LEGAL_VALIDE else '</p>'}
         <h1>{escape(titre)}</h1>
         {corps}
       </div>
     </section>'''
-        page(fichier, t(f'Sakîna · {titre}', f'سكينة · {titre}'), titre, corps, '', '', robots='noindex, nofollow')
+        page(fichier, t(f'Sakîna · {titre}', f'سكينة · {titre}'), titre, corps, '', '', robots='' if LEGAL_VALIDE else 'noindex, nofollow')
 
 
 def charte():

@@ -169,7 +169,7 @@ body [lang="ar"], .ar { font-family: var(--f-arabe); direction: rtl; unicode-bid
 
 /* --- Pied --- */
 .pied { background: var(--nuit); color: #BCCADB; padding: 64px 0 28px; background-image: var(--motif-etoile-clair); }
-.pied-grille { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 32px; }
+.pied-grille { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 32px; }
 .pied h4 { font: 400 1.1rem/1.2 var(--f-titre); color: var(--or-clair); margin: 0 0 16px; }
 .pied ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; font-size: var(--corps-sm); }
 .pied a { color: #E2EAF4; text-decoration: none; }
@@ -838,3 +838,6 @@ html[lang="ar"] .lecture-titre { font-family: var(--f-titre-ar) !important; }
 .introuvable { max-width: 640px; text-align: center; }
 .introuvable-arc { width: 64px; height: 77px; color: var(--nuit); }
 .introuvable-liens { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 24px; margin: 26px 0 0; padding: 0; list-style: none; }
+.pied-legal a { color: inherit; }
+.pied-legal { font-size: var(--corps-xs); }
+@media (max-width: 520px) { .pied-grille > div:nth-child(3) h4 { display: none; } .pied-grille > div:nth-child(3) ul { margin-top: -18px; } }

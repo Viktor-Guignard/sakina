@@ -3,6 +3,10 @@ les passages entre crochets sont à compléter par Viktor. Pages non liées au m
 
 A_COMPLETER = '[à compléter]'
 
+# Interrupteur : False tant que le juriste n'a pas validé. À True, les pages légales sont liées
+# dans le pied de page de tout le site, et indexables (plus de bandeau « brouillon »).
+LEGAL_VALIDE = False
+
 PAGES_LEGALES = {
     'mentions-legales.html': ('Mentions légales', [
         ('Éditeur du site', [
