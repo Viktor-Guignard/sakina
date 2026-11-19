@@ -331,8 +331,8 @@ html[lang="ar"] .voisin { font-family: var(--f-titre-ar); }
 .composer { padding: 28px 0 64px; }
 .composer-grille { width: min(1320px, 100% - 32px); margin-inline: auto; display: grid; grid-template-columns: minmax(0, 470px) minmax(0, 1fr); gap: 36px; align-items: start; }
 @media (max-width: 960px) { .composer-grille { grid-template-columns: 1fr; } }
-.composer-guide { position: sticky; top: 96px; }
-@media (max-width: 960px) { .composer-guide { position: static; } }
+.composer-guide { position: sticky; top: 96px; max-height: calc(100vh - 110px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+@media (max-width: 960px) { .composer-guide { position: static; max-height: none; overflow: visible; } }
 .etoiles { list-style: none; display: flex; gap: 6px; margin: 0 0 22px; padding: 0; }
 .etoiles button { width: 30px; height: 30px; padding: 4px; border: 0; background: none; cursor: pointer; color: var(--sable-2); }
 .etoiles svg { width: 100%; height: 100%; fill: currentColor; }
@@ -731,3 +731,14 @@ html[lang="ar"] .suivi-statut { font-family: var(--f-titre-ar); }
 .piece { grid-template-columns: 52px 1fr; column-gap: 12px; align-items: center; }
 .piece-vignette { grid-row: 1 / span 2; width: 52px; height: 48px; }
 .piece-nom, .piece-court { grid-column: 2; }
+
+/* Récapitulatif avant paiement */
+.recap-titre { margin: 0 0 8px; font: 400 var(--corps-md) var(--f-titre); color: var(--nuit); }
+html[lang="ar"] .recap-titre { font-family: var(--f-titre-ar); }
+.recap { display: grid; gap: 6px; margin: 0 0 14px; padding: 12px 14px; border-radius: 14px; background: var(--blanc); font-size: var(--corps-sm); }
+.recap div { display: flex; justify-content: space-between; gap: 12px; }
+.recap dt { color: var(--encre-douce); }
+.recap dd { margin: 0; font-weight: 700; color: var(--nuit); text-align: end; }
+.recap-etapes { margin: 0 0 16px; padding-inline-start: 22px; font-size: var(--corps-sm); color: var(--encre-douce); }
+.recap-etapes li { margin-bottom: 4px; }
+.recap-etapes strong { color: var(--nuit); }

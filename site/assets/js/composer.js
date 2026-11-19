@@ -649,6 +649,30 @@
     const detail = estCarte() ? UI.faces(pages) : UI.pages(pages);
     document.getElementById('devis-prix').innerHTML = total == null ? (estCarte() ? UI.devisCarte : UI.devis)
       : `<strong>${euros(total)}</strong> ${UI.ttc}<br><small>${UI.unite(euros(total / +choix.value))} · ${detail}</small>`;
+    recapitulatif(pages, +choix.value, total);
+  }
+
+  /** Récapitulatif de la commande, juste avant le paiement (ou la demande de devis). */
+  function recapitulatif(pages, quantite, total) {
+    const dl = document.getElementById('commande-recap');
+    if (!dl) return;
+    const ar = SITE === 'ar', C = D.ceremonies[etat.c], M = modele();
+    const R = ar ? { piece: 'القطعة', pour: 'المناسبة', format: 'المقاس', qte: 'الكمية', prix: 'السعر', langue: 'اللغة', devis: 'بعرض سعر: نجيبكم بالبريد',
+                     langues: { fr: 'الفرنسية', ar: 'العربية', bi: 'العربية والفرنسية' } }
+                 : { piece: 'Pièce', pour: 'Pour', format: 'Format', qte: 'Quantité', prix: 'Prix', langue: 'Langue', devis: 'sur devis : réponse par e-mail',
+                     langues: { fr: 'français', ar: 'arabe', bi: 'français et arabe' } };
+    const lignes = [
+      [R.piece, ar ? M.nom_ar : M.nom_fr],
+      [R.pour, `${ar ? C.nom_ar : C.nom_fr}${etat.noms.trim() ? ' · ' + etat.noms : ''}`],
+      [R.format, `${format()}${estCarte() ? '' : ' · ' + UI.pages(pages)}`],
+      [R.langue, R.langues[etat.langue]],
+      [R.qte, UI.ex(quantite)],
+      [R.prix, total == null ? R.devis : `${euros(total)} ${UI.ttc}`],
+    ];
+    dl.innerHTML = lignes.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('');
+    const b = document.getElementById('envoyer-commande');
+    b.textContent = total == null ? b.dataset.devis : b.dataset.payer;
+    document.getElementById('recap-paiement').closest('li').hidden = total == null;
   }
 
   // ------------------------------------------------------------------ événements

@@ -13,7 +13,7 @@
   <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="../assets/fonts/Amiri-400-arabic.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="../assets/css/polices.css?v=067ab01337">
-  <link rel="stylesheet" href="../assets/css/style.css?v=6dd0fd61d4">
+  <link rel="stylesheet" href="../assets/css/style.css?v=59e49b3ba9">
 </head>
 <body>
   <a class="visuellement-cache" href="#contenu">الانتقال مباشرةً إلى النص</a>
@@ -129,14 +129,21 @@
               <a class="btn btn-contour" id="commander" href="#" aria-controls="commande">طلب الطباعة</a>
             </div>
             <div class="commande" id="commande" role="group" hidden>
-              <p class="question-aide">نرسل إليكم نسخةً للمراجعة: لا يُطبع شيءٌ قبل موافقتكم.</p>
+              <h3 class="recap-titre">طلبكم</h3>
+              <dl class="recap" id="commande-recap"></dl>
+              <ol class="recap-etapes">
+                <li><strong>الدفع عبر الإنترنت</strong> <span id="recap-paiement">بالبطاقة، عبر Stripe الآمن؛ تُضاف تكلفة التوصيل في هذه الخطوة</span></li>
+                <li><strong>نسخة المراجعة</strong> نُعدّها ونرسلها إليكم بالبريد</li>
+                <li><strong>موافقتكم</strong> لا يُطبع شيءٌ قبلها</li>
+                <li><strong>الطباعة والشحن</strong> مع رقم تتبّع</li>
+              </ol>
               <label class="champ"><span>الاسم</span><input name="c_nom" required maxlength="80" autocomplete="name"></label>
               <label class="champ"><span>البريد الإلكتروني</span><input name="c_email" type="email" required maxlength="120" autocomplete="email" dir="ltr"></label>
               <label class="champ"><span>الهاتف (اختياري)</span><input name="c_tel" type="tel" maxlength="30" autocomplete="tel" dir="ltr"></label>
               <label class="champ"><span>كلمةٌ لنا (اختياري)</span><textarea name="c_message" rows="2" maxlength="1000"></textarea></label>
               <label class="case"><input type="checkbox" name="c_relecture"> راجع الآياتِ والأدعيةَ إمامٌ أو عارفٌ بالعربية</label>
               <label class="piege" aria-hidden="true">Site <input name="c_site" tabindex="-1" autocomplete="off"></label>
-              <button type="button" class="btn btn-or" id="envoyer-commande">متابعة إلى الدفع</button>
+              <button type="button" class="btn btn-or" id="envoyer-commande" data-payer="متابعة إلى الدفع" data-devis="طلب عرض السعر">متابعة إلى الدفع</button>
             </div>
             <p class="aide" id="message" role="status"></p>
             <button type="button" class="btn-petit" id="reinitialiser">العودة إلى النصوص المقترحة</button>
@@ -210,7 +217,7 @@
     })();
   </script>
 <script src="../assets/js/donnees.js?v=ba642a8c7e"></script>
-<script src="../assets/js/composer.js?v=b40cddef72"></script>
+<script src="../assets/js/composer.js?v=765bd92d45"></script>
 <script src="../assets/js/livret3d.js?v=3cebb7d0c9"></script>
 </body>
 </html>

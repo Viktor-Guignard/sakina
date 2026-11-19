@@ -13,7 +13,7 @@
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/Amiri-400-arabic.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/polices.css?v=067ab01337">
-  <link rel="stylesheet" href="assets/css/style.css?v=6dd0fd61d4">
+  <link rel="stylesheet" href="assets/css/style.css?v=59e49b3ba9">
 </head>
 <body>
   <a class="visuellement-cache" href="#contenu">Passer directement au texte</a>
@@ -129,14 +129,21 @@
               <a class="btn btn-contour" id="commander" href="#" aria-controls="commande">Le faire imprimer</a>
             </div>
             <div class="commande" id="commande" role="group" hidden>
-              <p class="question-aide">Nous vous envoyons une épreuve : rien n'est imprimé avant votre accord.</p>
+              <h3 class="recap-titre">Votre commande</h3>
+              <dl class="recap" id="commande-recap"></dl>
+              <ol class="recap-etapes">
+                <li><strong>Paiement en ligne</strong> <span id="recap-paiement">par carte, sécurisé par Stripe ; la livraison s’ajoute à cette étape</span></li>
+                <li><strong>Votre épreuve</strong> nous la préparons et vous l’envoyons par e-mail</li>
+                <li><strong>Votre accord</strong> rien n'est imprimé avant</li>
+                <li><strong>Impression et envoi</strong> avec un numéro de suivi</li>
+              </ol>
               <label class="champ"><span>Votre nom</span><input name="c_nom" required maxlength="80" autocomplete="name"></label>
               <label class="champ"><span>Votre e-mail</span><input name="c_email" type="email" required maxlength="120" autocomplete="email" dir="ltr"></label>
               <label class="champ"><span>Téléphone (facultatif)</span><input name="c_tel" type="tel" maxlength="30" autocomplete="tel" dir="ltr"></label>
               <label class="champ"><span>Un mot pour nous (facultatif)</span><textarea name="c_message" rows="2" maxlength="1000"></textarea></label>
               <label class="case"><input type="checkbox" name="c_relecture"> Les versets et invocations ont été relus par un imam ou un arabisant</label>
               <label class="piege" aria-hidden="true">Site <input name="c_site" tabindex="-1" autocomplete="off"></label>
-              <button type="button" class="btn btn-or" id="envoyer-commande">Continuer vers le paiement</button>
+              <button type="button" class="btn btn-or" id="envoyer-commande" data-payer="Continuer vers le paiement" data-devis="Demander mon devis">Continuer vers le paiement</button>
             </div>
             <p class="aide" id="message" role="status"></p>
             <button type="button" class="btn-petit" id="reinitialiser">Revenir aux textes proposés</button>
@@ -210,7 +217,7 @@
     })();
   </script>
 <script src="assets/js/donnees.js?v=ba642a8c7e"></script>
-<script src="assets/js/composer.js?v=b40cddef72"></script>
+<script src="assets/js/composer.js?v=765bd92d45"></script>
 <script src="assets/js/livret3d.js?v=3cebb7d0c9"></script>
 </body>
 </html>

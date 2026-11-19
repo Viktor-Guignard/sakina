@@ -591,14 +591,21 @@ def composer():
               <a class="btn btn-contour" id="commander" href="#" aria-controls="commande">{t('Le faire imprimer', 'طلب الطباعة')}</a>
             </div>
             <div class="commande" id="commande" role="group" hidden>
-              <p class="question-aide">{t("Nous vous envoyons une épreuve : rien n'est imprimé avant votre accord.", 'نرسل إليكم نسخةً للمراجعة: لا يُطبع شيءٌ قبل موافقتكم.')}</p>
+              <h3 class="recap-titre">{t('Votre commande', 'طلبكم')}</h3>
+              <dl class="recap" id="commande-recap"></dl>
+              <ol class="recap-etapes">
+                <li><strong>{t('Paiement en ligne', 'الدفع عبر الإنترنت')}</strong> <span id="recap-paiement">{t('par carte, sécurisé par Stripe ; la livraison s’ajoute à cette étape', 'بالبطاقة، عبر Stripe الآمن؛ تُضاف تكلفة التوصيل في هذه الخطوة')}</span></li>
+                <li><strong>{t('Votre épreuve', 'نسخة المراجعة')}</strong> {t('nous la préparons et vous l’envoyons par e-mail', 'نُعدّها ونرسلها إليكم بالبريد')}</li>
+                <li><strong>{t('Votre accord', 'موافقتكم')}</strong> {t("rien n'est imprimé avant", 'لا يُطبع شيءٌ قبلها')}</li>
+                <li><strong>{t('Impression et envoi', 'الطباعة والشحن')}</strong> {t('avec un numéro de suivi', 'مع رقم تتبّع')}</li>
+              </ol>
               <label class="champ"><span>{t('Votre nom', 'الاسم')}</span><input name="c_nom" required maxlength="80" autocomplete="name"></label>
               <label class="champ"><span>{t('Votre e-mail', 'البريد الإلكتروني')}</span><input name="c_email" type="email" required maxlength="120" autocomplete="email" dir="ltr"></label>
               <label class="champ"><span>{t('Téléphone (facultatif)', 'الهاتف (اختياري)')}</span><input name="c_tel" type="tel" maxlength="30" autocomplete="tel" dir="ltr"></label>
               <label class="champ"><span>{t('Un mot pour nous (facultatif)', 'كلمةٌ لنا (اختياري)')}</span><textarea name="c_message" rows="2" maxlength="1000"></textarea></label>
               <label class="case"><input type="checkbox" name="c_relecture"> {t('Les versets et invocations ont été relus par un imam ou un arabisant', 'راجع الآياتِ والأدعيةَ إمامٌ أو عارفٌ بالعربية')}</label>
               <label class="piege" aria-hidden="true">Site <input name="c_site" tabindex="-1" autocomplete="off"></label>
-              <button type="button" class="btn btn-or" id="envoyer-commande">{t('Continuer vers le paiement', 'متابعة إلى الدفع')}</button>
+              <button type="button" class="btn btn-or" id="envoyer-commande" data-payer="{t('Continuer vers le paiement', 'متابعة إلى الدفع')}" data-devis="{t('Demander mon devis', 'طلب عرض السعر')}">{t('Continuer vers le paiement', 'متابعة إلى الدفع')}</button>
             </div>
             <p class="aide" id="message" role="status"></p>
             <button type="button" class="btn-petit" id="reinitialiser">{t('Revenir aux textes proposés', 'العودة إلى النصوص المقترحة')}</button>'''),
