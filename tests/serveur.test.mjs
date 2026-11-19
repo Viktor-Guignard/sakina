@@ -150,6 +150,19 @@ try {
   const pieges = sessions.length;
   verifier((await post({ ...base, site_web: 'http://spam' })).ok && sessions.length === pieges, 'robot piégé sans commande');
 
+  console.log('Page Contact');
+  await page.goto(`${BASE}/contact.html`);
+  await page.fill('#contact [name=nom]', 'Samira');
+  await page.fill('#contact [name=email]', 'samira@example.org');
+  await page.selectOption('#contact [name=sujet]', 'janaza');
+  await page.fill('#contact [name=message]', 'Bonjour, pour une janâza demain : quel délai ?');
+  await page.click('#contact button');
+  await page.waitForFunction(() => /reçu/.test(document.getElementById('contact-message').textContent));
+  const msgs = await (await admin('messages')).json();
+  verifier(msgs.messages.some(m => m.nom === 'Samira' && m.sujet === 'janaza') && msgs.non_lus >= 1, 'le message de contact arrive dans l’administration');
+  const vide = await fetch(`${BASE}/api/contact`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nom: 'A', email: 'a@example.org', message: '' }) });
+  verifier(vide.status === 400, 'message vide refusé');
+
   console.log('Page d’administration');
   await page.goto(`${BASE}/admin.html`);
   await page.fill('[name=jeton]', 'mauvais-mot-de-passe');
@@ -164,6 +177,11 @@ try {
   await page.waitForSelector('#admin-detail h2');
   verifier((await page.textContent('#admin-detail')).includes('Paris'), 'le détail montre l’adresse de livraison');
   verifier((await page.locator('#admin-detail button[data-statut="en_impression"]').count()) === 1, 'l’étape suivante est proposée (en impression)');
+  await page.click('[data-messages]');
+  await page.waitForSelector('.admin-message');
+  await page.click('.admin-message [data-lu]');
+  await page.waitForFunction(() => document.querySelector('[data-messages] small').textContent.startsWith('0'));
+  verifier(true, 'messages lus dans l’administration, puis marqués lus');
   if (process.env.CAPTURES) await page.screenshot({ path: join(process.env.CAPTURES, 'admin.png'), fullPage: true });
 
   verifier(erreursPage.length === 0, 'aucune erreur JavaScript dans les pages' + (erreursPage.length ? ' : ' + erreursPage.join(' | ') : ''));

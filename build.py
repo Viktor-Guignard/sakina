@@ -215,7 +215,7 @@ def page(fichier, titre, description, corps, actif='', scripts='', robots='', js
           <li><a href="motifs.html">{t('Les motifs', 'الزخارف')}</a></li>
           <li><a href="respect.html">{t('Notre éthique', 'ميثاقنا')}</a></li>
           {charte_lien}
-          <li><a href="mailto:{MARQUE["email"]}" dir="ltr">{MARQUE["email"]}</a></li>
+          <li><a href="contact.html">{t('Nous écrire', 'راسلونا')}</a></li>
         </ul></div>
       </div>
       <div class="pied-bas"><span>© {chiffres('2026')} {nom}</span><span class="{t('ar', '')}" lang="{t('ar', 'fr')}">{t(MARQUE["nom_ar"], MARQUE["nom"])}</span></div>
@@ -420,7 +420,7 @@ def accueil():
         <p class="appel-ar ar" lang="ar">بِسْمِ اللَّه</p>
         <h2>{t('Commencez par la première page', 'ابدأ بالصفحة الأولى')}</h2>
         <p class="chapo">{t('Répondez à quelques questions : les pages se composent au fil de vos réponses.', 'أجيبوا عن بضعة أسئلة: تتكوّن الصفحات مع كل جواب.')}</p>
-        <div class="seuil-actions"><a class="btn btn-or" href="composer.html">{t('Composer mon livret', 'صمّم كتيّبي')}</a><a href="mailto:{MARQUE["email"]}">{t('ou écrivez-nous', 'أو راسلونا')}</a></div>
+        <div class="seuil-actions"><a class="btn btn-or" href="composer.html">{t('Composer mon livret', 'صمّم كتيّبي')}</a><a href="contact.html">{t('ou écrivez-nous', 'أو راسلونا')}</a></div>
       </div>
     </section>'''
     page('index.html', t(f'{MARQUE["nom"]} · livrets et papeterie des cérémonies musulmanes', 'سكينة · كتيّبات وأوراق المناسبات الإسلامية'),
@@ -919,6 +919,67 @@ def questions_frequentes():
              fil_ariane([(t('Accueil', 'الرئيسية'), ''), (t('Questions fréquentes', 'أسئلة شائعة'), 'questions-frequentes.html')])])
 
 
+def comment_ca_marche():
+    """Comment ça marche : les quatre temps, de la composition à la livraison."""
+    etapes = [
+        (t('Composer', 'التصميم'), t("Choisissez la cérémonie, la pièce et le motif ; répondez à quelques questions. La pièce se compose sous vos yeux, en français, en arabe ou les deux.",
+                                     'اختاروا المناسبة والقطعة والزخرفة، وأجيبوا عن بضعة أسئلة. تتكوّن القطعة أمام أعينكم، بالعربية أو بالفرنسية أو بهما.')),
+        (t('Faire relire', 'المراجعة'), t("Envoyez le lien de relecture à votre imam ou à un arabisant : il voit la pièce et la liste des versets à vérifier.",
+                                           'أرسلوا رابط المراجعة إلى إمامكم أو إلى عارفٍ بالعربية: يرى القطعة وقائمة الآيات التي يتحقّق منها.')),
+        (t('Commander', 'الطلب'), t("Payez en ligne (ou demandez un devis). Nous préparons l'épreuve et vous l'envoyons : rien n'est imprimé avant votre accord.",
+                                     'ادفعوا عبر الإنترنت (أو اطلبوا عرض سعر). نُعدّ نسخة المراجعة ونرسلها إليكم: لا يُطبع شيءٌ قبل موافقتكم.')),
+        (t('Recevoir', 'الاستلام'), t("Après votre accord, la pièce est imprimée et expédiée, avec un numéro de suivi. Votre page de suivi vous dit où elle en est.",
+                                       'بعد موافقتكم، تُطبع القطعة وتُشحن مع رقم تتبّع. وصفحة المتابعة تخبركم بمسارها.')),
+    ]
+    items = ''.join(f'<li><span class="ccm-num">{chiffres(str(n + 1))}</span><div><h2>{escape(h)}</h2><p>{escape(p_)}</p></div></li>' for n, (h, p_) in enumerate(etapes))
+    corps = f'''
+    <section class="section">
+      <div class="conteneur ccm">
+        {fil(f'<a href="index.html">{t("Accueil", "الرئيسية")}</a>', t('Comment ça marche', 'كيف يجري ذلك'))}
+        <h1>{t('Comment ça marche', 'كيف يجري ذلك')}</h1>
+        <p class="chapo">{t('De la première question à la pièce imprimée, quatre temps.', 'من السؤال الأوّل إلى القطعة المطبوعة، أربع مراحل.')}</p>
+        <ol class="ccm-etapes">{items}</ol>
+        <p class="ccm-fin"><a class="btn btn-or" href="composer.html">{t('Commencer', 'ابدأوا')}</a> <a href="questions-frequentes.html">{t('Questions fréquentes', 'أسئلة شائعة')}</a></p>
+      </div>
+    </section>'''
+    page('comment-ca-marche.html', t('Comment ça marche · Sakîna', 'كيف يجري ذلك · سكينة'),
+         t("Composer en ligne, faire relire par l'imam, commander, recevoir : comment se fait un livret ou un faire-part chez Sakîna, de la première question à l'impression.",
+           'التصميم عبر الإنترنت، والمراجعة لدى الإمام، والطلب، والاستلام: كيف يُصنع كتيّبٌ أو بطاقةٌ لدى سكينة، من السؤال الأوّل إلى الطباعة.'),
+         corps, '', jsonld=[fil_ariane([(t('Accueil', 'الرئيسية'), ''), (t('Comment ça marche', 'كيف يجري ذلك'), 'comment-ca-marche.html')])])
+
+
+def contact():
+    """Contact : un formulaire relié au service (/api/contact). Sans service (site statique seul), il est désactivé."""
+    r = racine()
+    sujets = [('question', t('Une question', 'سؤال')), ('devis', t('Un devis', 'عرض سعر')), ('commande', t('Une commande en cours', 'طلبٌ جارٍ')),
+              ('janaza', t('Une janâza (urgent)', 'جنازة (عاجل)')), ('autre', t('Autre chose', 'أمرٌ آخر'))]
+    options = ''.join(f'<option value="{k}">{escape(v)}</option>' for k, v in sujets)
+    inactif = '' if API is not None else f'<p class="aide">{t("Le formulaire ouvre avec la mise en ligne du service de commande.", "يُفتح النموذج مع تشغيل خدمة الطلبات.")}</p>'
+    corps = f'''
+    <section class="section">
+      <div class="conteneur contact-page">
+        {fil(f'<a href="index.html">{t("Accueil", "الرئيسية")}</a>', t('Contact', 'تواصلوا معنا'))}
+        <h1>{t('Nous écrire', 'راسلونا')}</h1>
+        <p class="chapo">{t('Une question, un devis, une janâza : nous répondons par e-mail, en français ou en arabe.', 'سؤال، أو عرض سعر، أو جنازة: نجيبكم بالبريد، بالعربية أو بالفرنسية.')}</p>
+        {inactif}
+        <form class="contact-form" id="contact" data-api="{API if API is not None else 'aucun'}">
+          <label class="champ"><span>{t('Votre nom', 'الاسم')}</span><input name="nom" required maxlength="80" autocomplete="name"></label>
+          <label class="champ"><span>{t('Votre e-mail', 'البريد الإلكتروني')}</span><input name="email" type="email" required maxlength="120" autocomplete="email" dir="ltr"></label>
+          <label class="champ"><span>{t('À quel sujet ?', 'في أيّ موضوع؟')}</span><select name="sujet">{options}</select></label>
+          <label class="champ"><span>{t('Votre message', 'رسالتكم')}</span><textarea name="message" rows="6" required maxlength="3000"></textarea></label>
+          <label class="piege" aria-hidden="true">Site <input name="site_web" tabindex="-1" autocomplete="off"></label>
+          <button class="btn btn-or">{t('Envoyer', 'إرسال')}</button>
+          <p class="aide" id="contact-message" role="status"></p>
+        </form>
+      </div>
+    </section>'''
+    page('contact.html', t('Contact · Sakîna', 'تواصلوا معنا · سكينة'),
+         t("Écrire à Sakîna : une question sur un livret ou un faire-part, un devis, une commande en cours ou une janâza. Réponse par e-mail, en français ou en arabe.",
+           'راسلوا سكينة: سؤالٌ عن كتيّبٍ أو بطاقة، أو عرض سعر، أو طلبٌ جارٍ، أو جنازة. نجيبكم بالبريد، بالعربية أو بالفرنسية.'),
+         corps, '', f'<script defer src="{r}assets/js/contact.js?v={version("assets/js/contact.js")}"></script>',
+         jsonld=[fil_ariane([(t('Accueil', 'الرئيسية'), ''), (t('Contact', 'تواصلوا معنا'), 'contact.html')])])
+
+
 def plan_du_site():
     """sitemap.xml et robots.txt. L'adresse vient de SAKINA_SITE (par défaut, l'adresse provisoire sur GitHub Pages).
     Les pages privées (suivi, administration, brouillons) sont exclues ; le reste du site reste indexable comme avant."""
@@ -1128,6 +1189,8 @@ def generer(langue):
     pages_legales()
     pages_pieces()
     questions_frequentes()
+    comment_ca_marche()
+    contact()
     if langue == 'fr':
         charte()
         admin()
@@ -1145,7 +1208,8 @@ if __name__ == '__main__':
     favicon()
     donnees_compositeur()
     PAGES_AR.update(['index.html', 'ceremonies.html', 'motifs.html', 'respect.html', 'composer.html', 'suivi.html',
-                     'mentions-legales.html', 'cgv.html', 'confidentialite.html', 'papeterie.html', 'questions-frequentes.html'] + [P['page'] for P in PIECES.values()]
+                     'mentions-legales.html', 'cgv.html', 'confidentialite.html', 'papeterie.html', 'questions-frequentes.html',
+                     'comment-ca-marche.html', 'contact.html'] + [P['page'] for P in PIECES.values()]
                     + [f'ceremonie-{c["id"]}.html' for c in CEREMONIES])
     generer('fr')
     generer('ar')

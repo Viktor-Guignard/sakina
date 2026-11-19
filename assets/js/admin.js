@@ -22,7 +22,8 @@
   async function liste() {
     const d = await api('commandes' + (filtre ? '?statut=' + filtre : ''));
     statuts = d.statuts;
-    $('admin-filtres').innerHTML = [['', 'Toutes', Object.values(d.comptes).reduce((a, b) => a + b, 0)],
+    const m = await api('messages');
+    $('admin-filtres').innerHTML = `<button type="button" data-messages="1" class="admin-btn-messages">Messages <small>${m.non_lus} non lu${m.non_lus > 1 ? 's' : ''}</small></button>` + [['', 'Toutes', Object.values(d.comptes).reduce((a, b) => a + b, 0)],
       ...Object.keys(statuts).filter(k => d.comptes[k]).map(k => [k, statuts[k].fr, d.comptes[k]])]
       .map(([k, l, n]) => `<button type="button" data-f="${k}"${k === filtre ? ' aria-pressed="true"' : ''}>${esc(l)} <small>${n}</small></button>`).join('');
     $('admin-liste').innerHTML = d.commandes.length ? d.commandes.map(c => `
@@ -87,6 +88,23 @@
     catch (err) { message(err.message); b.disabled = false; }
   });
   $('admin-liste').addEventListener('click', e => { const b = e.target.closest('[data-id]'); if (b) detail(b.dataset.id).catch(err => message(err.message)); });
+  async function messages() {
+    location.hash = 'messages';
+    const d = await api('messages');
+    $('admin-detail').innerHTML = `<h2>Messages</h2>` + (d.messages.length ? d.messages.map(m => `
+      <article class="admin-message${m.lu ? '' : ' non-lu'}">
+        <p><strong>${esc(m.nom)}</strong> · <a href="mailto:${esc(m.email)}">${esc(m.email)}</a> · ${esc(m.sujet)} · ${m.langue} · <small>${date(m.cree_le)}</small></p>
+        <p class="admin-message-texte">${esc(m.message)}</p>
+        <button type="button" class="btn-petit" data-lu="${m.id}" data-etat="${m.lu ? 0 : 1}">${m.lu ? 'Marquer non lu' : 'Marquer lu'}</button>
+      </article>`).join('') : '<p class="aide">Aucun message.</p>');
+  }
+  $('admin-detail').addEventListener('click', async e => {
+    const b = e.target.closest('[data-lu]');
+    if (!b) return;
+    try { await api('messages', { method: 'PATCH', body: JSON.stringify({ id: +b.dataset.lu, lu: b.dataset.etat === '1' }) }); messages(); liste(); }
+    catch (err) { message(err.message); }
+  });
+  $('admin-filtres').addEventListener('click', e => { if (e.target.closest('[data-messages]')) return void messages().catch(err => message(err.message)); });
   $('admin-filtres').addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (b) { filtre = b.dataset.f; liste().catch(err => message(err.message)); } });
   $('admin-connexion').addEventListener('submit', async e => {
     e.preventDefault();
@@ -96,6 +114,7 @@
   async function demarrer() {
     await liste();
     $('admin-connexion').hidden = true; $('admin-app').hidden = false; message('');
+    if (location.hash === '#messages') return void messages().catch(err => message(err.message));
     if (location.hash.length > 1) detail(decodeURIComponent(location.hash.slice(1))).catch(err => message(err.message));
   }
   if (jeton) demarrer().catch(err => message(err.message));
