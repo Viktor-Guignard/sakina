@@ -47,6 +47,13 @@ L = 'fr'
 PAGES_AR = set()   # fichiers qui existent aussi en arabe
 
 
+def publique(chemin):
+    """Adresse publique d'une page, sans « .html » : Cloudflare Pages redirige composer.html vers /composer
+    (308), et GitHub Pages sert les deux. Les adresses canoniques doivent être celles qui ne redirigent pas."""
+    chemin = chemin.replace('index.html', '')
+    return f'{BASE}/{chemin[:-5] if chemin.endswith(".html") else chemin}'
+
+
 def t(fr, ar):
     return ar if L == 'ar' else fr
 
@@ -143,10 +150,10 @@ def page(fichier, titre, description, corps, actif='', scripts='', robots='', js
     bascule = (f'<a class="bascule-langue" href="{url_fr}" data-langue="fr" lang="fr" hreflang="fr">Français</a>' if L == 'ar'
                else f'<a class="bascule-langue" href="{url_ar}" data-langue="ar" lang="ar" hreflang="ar">العربية</a>')
     # Référencement : adresse canonique et versions linguistiques en adresses absolues (exigé par Google).
-    adresse = f'{BASE}/{"ar/" if L == "ar" else ""}{fichier}'.replace('/index.html', '/')
+    adresse = publique(f'{"ar/" if L == "ar" else ""}{fichier}')
     alternates = f'<link rel="canonical" href="{adresse}">'
     if fichier in PAGES_AR:
-        fr, ar = f'{BASE}/{fichier}'.replace('/index.html', '/'), f'{BASE}/ar/{fichier}'.replace('/index.html', '/')
+        fr, ar = publique(fichier), publique(f'ar/{fichier}')
         alternates += (f'\n  <link rel="alternate" hreflang="fr" href="{fr}">'
                        f'\n  <link rel="alternate" hreflang="ar" href="{ar}">'
                        f'\n  <link rel="alternate" hreflang="x-default" href="{fr}">')
@@ -286,9 +293,8 @@ def fil_vie():
 
 def fil_ariane(etapes):
     """Données structurées BreadcrumbList (schema.org) : [(nom, fichier), …]."""
-    racine_l = f'{BASE}/ar/' if L == 'ar' else f'{BASE}/'
     return {'@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
-        {'@type': 'ListItem', 'position': i + 1, 'name': n, 'item': racine_l + f} for i, (n, f) in enumerate(etapes)]}
+        {'@type': 'ListItem', 'position': i + 1, 'name': n, 'item': publique(f'{"ar/" if L == "ar" else ""}{f}')} for i, (n, f) in enumerate(etapes)]}
 
 
 def famille_papeterie(cle='alhambra', ceremonie='nikah', compacte=False):
@@ -331,7 +337,7 @@ def accueil():
         {'@context': 'https://schema.org', '@type': 'Organization', 'name': MARQUE['nom'], 'alternateName': MARQUE['nom_ar'],
          'url': f'{BASE}/', 'logo': f'{BASE}/assets/img/favicon.svg',
          'description': t('Livrets et papeterie pour les cérémonies musulmanes, en français et en arabe.', 'كتيّبات وأوراق للمناسبات الإسلامية، بالعربية والفرنسية.')},
-        {'@context': 'https://schema.org', '@type': 'WebSite', 'name': t(MARQUE['nom'], MARQUE['nom_ar']), 'url': f'{BASE}/{"ar/" if L == "ar" else ""}',
+        {'@context': 'https://schema.org', '@type': 'WebSite', 'name': t(MARQUE['nom'], MARQUE['nom_ar']), 'url': publique('ar/' if L == 'ar' else ''),
          'inLanguage': L},
     ]
     corps = f'''
@@ -1023,7 +1029,7 @@ def plan_du_site():
         prives |= {'mentions-legales.html', 'cgv.html', 'confidentialite.html'}
     urls = sorted(p.relative_to(SITE).as_posix() for p in SITE.rglob('*.html') if p.name not in prives)
     (SITE / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-        + ''.join(f'  <url><loc>{base}/{u}</loc></url>\n' for u in urls) + '</urlset>\n', encoding='utf-8')
+        + ''.join(f'  <url><loc>{publique(u)}</loc></url>\n' for u in urls) + '</urlset>\n', encoding='utf-8')
     (SITE / 'robots.txt').write_text('User-agent: *\n' + ''.join(f'Disallow: /{d}\n' for d in
         ['admin.html', 'suivi.html', 'ar/suivi.html', 'relecture.html', 'api/']) + f'\nSitemap: {base}/sitemap.xml\n', encoding='utf-8')
 

@@ -23,18 +23,19 @@ for (const f of fichiers) {
   const prive = PRIVEES.includes(nom), faute = m => echecs.push(`${f} : ${m}`);
   const titre = attr(html, /<title>([^<]*)<\/title>/), desc = attr(html, /<meta name="description" content="([^"]*)"/);
   const canon = attr(html, /<link rel="canonical" href="([^"]*)"/);
-  const url = `${BASE}/${f}`.replace(/\/index\.html$/, '/');
+  const url = `${BASE}/${f}`.replace(/index\.html$/, '').replace(/\.html$/, '');   // adresses publiques sans .html
   if (!canon || canon !== url) faute(`canonique ${canon} au lieu de ${url}`);
   canoniques.set(canon, f);
   if (prive) {
     if (!/<meta name="robots" content="noindex/.test(html)) faute('page privée sans noindex');
-    if (plan.includes(`/${f}<`)) faute('page privée dans le plan du site');
+    if (plan.includes(`<loc>${url}</loc>`)) faute('page privée dans le plan du site');
     continue;
   }
   if (!titre) faute('sans titre'); else if (titres.has(titre)) faute(`titre en double avec ${titres.get(titre)}`); else titres.set(titre, f);
   if (!desc || desc.length < 70 || desc.length > 200) faute(`description de ${desc ? desc.length : 0} caractères`);
   if (/<meta name="robots" content="noindex/.test(html)) faute('page publique en noindex');
-  if (!plan.includes(`<loc>${url}</loc>`) && !plan.includes(`<loc>${BASE}/${f}</loc>`)) faute('absente du plan du site');
+  if (!plan.includes(`<loc>${url}</loc>`)) faute('absente du plan du site');
+  if (/\.html</.test(plan)) faute('le plan du site contient des adresses en .html (redirigées par Cloudflare)');
   const image = attr(html, /<meta property="og:image" content="([^"]*)"/);
   if (!image || !existsSync(join(SITE, image.replace(BASE + '/', '')))) faute(`image de partage introuvable : ${image}`);
   for (const [, j] of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
@@ -43,8 +44,9 @@ for (const f of fichiers) {
   // hreflang réciproque
   const alt = [...html.matchAll(/<link rel="alternate" hreflang="(fr|ar)" href="([^"]*)"/g)].map(m => [m[1], m[2]]);
   for (const [langue, href] of alt) {
-    const cible = href.replace(BASE + '/', '').replace(/\/$/, '/index.html').replace(/^$/, 'index.html') || 'index.html';
-    const chemin = join(SITE, cible.endsWith('/') ? cible + 'index.html' : cible);
+    const rel = href.replace(BASE + '/', '');
+    const cible = rel === '' || rel.endsWith('/') ? rel + 'index.html' : rel + '.html';
+    const chemin = join(SITE, cible);
     if (!existsSync(chemin)) { faute(`hreflang ${langue} vers une page absente : ${href}`); continue; }
     const retour = readFileSync(chemin, 'utf8');
     if (!retour.includes(`hreflang="${f.startsWith('ar/') ? 'ar' : 'fr'}" href="${url}"`)) faute(`hreflang ${langue} non réciproque`);

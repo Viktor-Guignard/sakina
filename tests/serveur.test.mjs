@@ -167,6 +167,13 @@ try {
   const rap = await (await admin('rappels', { method: 'POST' })).json();
   verifier(Array.isArray(rap.relances) && !rap.relances.includes(id), 'rappels : une épreuve validée n’est pas relancée');
 
+  console.log('Adresses publiques (Cloudflare retire « .html »)');
+  const canon = await fetch(`${BASE}/ar/ceremonie-nikah`, { redirect: 'manual' });
+  verifier(canon.status === 200, 'l’adresse canonique sans .html répond directement (pas de redirection)');
+  const redir = await fetch(`${BASE}/suivi.html?c=SK-TEST&j=abc`, { redirect: 'manual' });
+  verifier([301, 308].includes(redir.status) && /\/suivi\?c=SK-TEST&j=abc$/.test(redir.headers.get('location') || ''),
+    `les liens en .html (courriels, suivi) sont redirigés en gardant leurs paramètres (${redir.status} → ${redir.headers.get('location')})`);
+
   console.log('Page introuvable');
   const p404 = await fetch(`${BASE}/une/adresse/qui/n-existe/pas`);
   const t404 = await p404.text();
